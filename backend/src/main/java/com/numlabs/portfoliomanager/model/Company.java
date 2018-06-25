@@ -37,6 +37,10 @@ public class Company implements Serializable {
 
     public Company(){}
 
+    public Company(Long id){
+        this.id = id;
+    }
+
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }

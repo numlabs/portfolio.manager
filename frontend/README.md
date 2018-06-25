@@ -1,0 +1,1 @@
+This is the frontend part of the project implemented with Angular 6

@@ -18,9 +18,8 @@ public class Period implements Serializable {
 
     private String name;
 
-    private String code;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", referencedColumnName = "ID")
     private Company company;
 
     @Column(name = "shares_outstanding")
@@ -83,14 +82,6 @@ public class Period implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public Company getCompany() {

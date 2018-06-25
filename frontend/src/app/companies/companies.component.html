@@ -1,0 +1,28 @@
+
+
+<h2>Companies</h2>
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let com of companies" (click)="onSelect(com)">
+        <th scope="row">{{com.id}}</th>
+        <td>{{com.name}}</td>
+        <td>{{com.symbol}}</td>
+        <td>{{com.price}}</td>
+      </tr>      
+    </tbody>
+  </table>
+
+  <div *ngIf="selectedCompany">
+    <app-company-details [detailedCompany]="selectedCompany"></app-company-details>
+  </div>
+
+
+
