@@ -15,19 +15,29 @@ export class CompaniesComponent implements OnInit {
   companies: Company[];
   selectedCompany: Company;
 
-  constructor(private companyService: CompanyService, private route: ActivatedRoute, private location: Location, private messageService: MessageService) { }
+  constructor(private companyService: CompanyService, private route: ActivatedRoute, private location: Location, private messageService: MessageService) {
+    let exchange = ""; 
+   // this.route.params.subscribe( params => this.getCompanies(params['exchange']));
+    this.route.params.subscribe( params => exchange = params['exchange']);
+    console.log(1);
+  }
 
-  ngOnInit() {
+  sayHello() { console.log("hello");}
+
+  ngOnInit() { console.log("exDDDchange");
     this.messageService.add('CompaniesComponent: initing');
-      this.getCompanies();
+    let exchange: string = this.route.snapshot.paramMap.get('exchange');
+      this.getCompanies(exchange);
   }
 
   onSelect(company: Company): void {
-    this.getCompanies();
+    let exchange: string = this.route.snapshot.paramMap.get('exchange');
+    this.getCompanies(exchange);
   }
 
-  getCompanies(): void {
-    let exchange: string = this.route.snapshot.paramMap.get('exchange');
+  getCompanies(exchange): void { 
+    
+    console.log("Loading for exchange: " + exchange);
     this.companyService.getCompanies(exchange).subscribe(companies => this.companies = companies);
   }
 
