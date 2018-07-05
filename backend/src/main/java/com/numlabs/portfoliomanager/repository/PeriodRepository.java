@@ -3,6 +3,7 @@ package com.numlabs.portfoliomanager.repository;
 import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.model.Period;
+import org.hibernate.criterion.Order;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
@@ -14,8 +15,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
-public class PeriodRepository {
-    private EntityManager entityManager;
+public class PeriodRepository extends PortfolioManagerRepository<Period> {
 
     public List<Period> findAllByCompany(Company company) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -23,16 +23,9 @@ public class PeriodRepository {
         Root<Period> root = criteriaQuery.from(Period.class);
 
         criteriaQuery.where(builder.equal(root.get("company"), company));
-        return entityManager.createQuery(criteriaQuery).getResultList();
+        criteriaQuery.orderBy(builder.desc(root.get("name")));
+        List<Period> periods = entityManager.createQuery(criteriaQuery).getResultList();
+        return periods;
     }
 
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public Period getPeriodById(Long id) {
-        Assert.notNull(id, Constants.ID_MUST_NOT_BE_NULL);
-        return this.entityManager.find(Period.class, id);
-    }
 }

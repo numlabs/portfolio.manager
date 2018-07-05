@@ -16,9 +16,10 @@ public class Period implements Serializable {
     @GenericGenerator(name = "increment", strategy = "increment")
     private Long id;
 
+    @Column
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", referencedColumnName = "ID")
     private Company company;
 
@@ -43,7 +44,7 @@ public class Period implements Serializable {
     private BigDecimal grossProfit;
 
     @Column(name = "operating_profit")
-    private BigDecimal operating_profit;
+    private BigDecimal operatingProfit;
 
     @Column(name = "net_profit")
     private BigDecimal netProfit;
@@ -63,10 +64,37 @@ public class Period implements Serializable {
     @Column(name = "dividend_paid")
     private BigDecimal dividendPaid;
 
+    @Column(name = "short_term_debt")
+    private BigDecimal shortTermDebt;
+
+    @Column(name = "long_term_debt")
+    private BigDecimal longTermDebt;
+
     @Column(name = "earnings_date")
     private Date earningsDate;
 
     public Period(){}
+
+    public Period(Company com, String name) {
+        this.company = com;
+        this.name = name;
+    }
+
+    public BigDecimal getShortTermDebt() {
+        return shortTermDebt;
+    }
+
+    public void setShortTermDebt(BigDecimal shortTermDebt) {
+        this.shortTermDebt = shortTermDebt;
+    }
+
+    public BigDecimal getLongTermDebt() {
+        return longTermDebt;
+    }
+
+    public void setLongTermDebt(BigDecimal longTermDebt) {
+        this.longTermDebt = longTermDebt;
+    }
 
     public Long getId() {
         return id;
@@ -148,12 +176,12 @@ public class Period implements Serializable {
         this.grossProfit = grossProfit;
     }
 
-    public BigDecimal getOperating_profit() {
-        return operating_profit;
+    public BigDecimal getOperatingProfit() {
+        return operatingProfit;
     }
 
-    public void setOperating_profit(BigDecimal operating_profit) {
-        this.operating_profit = operating_profit;
+    public void setOperatingProfit(BigDecimal operatingProfit) {
+        this.operatingProfit = operatingProfit;
     }
 
     public BigDecimal getNetProfit() {

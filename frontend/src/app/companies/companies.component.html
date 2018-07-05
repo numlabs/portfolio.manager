@@ -1,28 +1,45 @@
 
 
-<h2>Companies</h2>
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+  <h1 class="display-4">Companies at {{companies && companies[0].exchange.name}}</h1>
+  <br/>
+  <br/>
+</div>
+
 <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Name</th>
-        <th scope="col">Symbol</th>
-        <th scope="col">Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let com of companies" (click)="onSelect(com)">
-        <th scope="row">{{com.id}}</th>
-        <td>{{com.name}}</td>
-        <td>{{com.symbol}}</td>
-        <td>{{com.price}}</td>
-      </tr>      
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Price</th>
+      <th scope="col">Buy Below</th>
+      <th scope="col">Sell Above</th>
+      <th scope="col">Market Cap</th>
+      <th scope="col">Equity</th>
+      <th scope="col">Ent. Value</th>
+      <th scope="col">P/E</th>
+      <th scope="col">P/BV</th>
+      <th scope="col">P/EBIT</th>
+      <th scope="col">EV/EBIT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let com of companies" (click)="onSelect(com)">
+      <td>{{com.symbol}} - {{com.name}}</td>
+      <td>{{com.price}}</td>
+      <td>{{com.buyBelowPrice}}</td>
+      <td>{{com.sellAbovePrice}}</td>
+      <td>{{com.marketCap | currency : '':'':'0.0-0'}}</td>
+      <td>{{com.equity | currency : '':'':'0.0-0'}}</td>
+      <td>{{com.ev | currency : '':'':'0.0-0'}}</td>
+      <td>{{com.pe}}</td>
+      <td>{{com.pb}}</td>
+      <td>{{com.pToEbit}}</td>
+      <td>{{com.evtoEBIT}}</td> 
+    </tr>
+  </tbody>
+</table>
 
-  <div *ngIf="selectedCompany">
-    <app-company-details [detailedCompany]="selectedCompany"></app-company-details>
-  </div>
-
-
+<div *ngIf="selectedCompany">
+  <app-company-details [detailedCompany]="selectedCompany"></app-company-details>
+</div>
 

@@ -21,6 +21,6 @@ public class PeriodServiceImpl implements PeriodService {
     }
 
     public Period getPeriodById(Long id) {
-        return this.periodRepository.getPeriodById(id);
+        return this.periodRepository.findById(id);
     }
 }
