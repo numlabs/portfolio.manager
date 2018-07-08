@@ -6,12 +6,18 @@
   <nav class="my-2 my-md-0 mr-md-3">
     <a class="p-2 text-dark" routerLink="/dashboard">Home</a> |
     <a class="p-2 text-dark" routerLink="/companies/bist">BIST Companies</a> |
-    <a class="p-2 text-dark" routerLink="/companies/eu">IB Companies</a>
+    <a class="p-2 text-dark" routerLink="/companies/eu">IB Companies</a> | 
+   
+    <a class="p-2 text-dark" href="#" id="operations" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operations</a>
+      <div class="dropdown-menu" aria-labelledby="operations">
+        <a class="dropdown-item" routerLink="/company/add">Add Company</a>
+        <a class="dropdown-item" href="#">Add Exchange</a>
+        <a class="dropdown-item" href="#">Add Period</a> 
+      </div>
+   
   </nav>
 </div>
 
-<div class="container">
-  
+<div class="container">  
   <router-outlet></router-outlet>
-
 </div>

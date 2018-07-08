@@ -9,9 +9,10 @@ import { CompanyDetailsComponent } from './company-details/company-details.compo
 import { MessagesComponent } from './messages/messages.component';
 import { AppRoutingModule } from './/app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { CompanyComponent } from './company/company.component';
 
 @NgModule({
-  declarations: [ AppComponent, CompaniesComponent, CompanyDetailsComponent, MessagesComponent, DashboardComponent ],
+  declarations: [ AppComponent, CompaniesComponent, CompanyDetailsComponent, MessagesComponent, DashboardComponent, CompanyComponent ],
   imports: [ BrowserModule, FormsModule, AppRoutingModule, HttpClientModule ],
   providers: [ ],
   bootstrap: [AppComponent]
