@@ -10,31 +10,43 @@
   <thead>
     <tr>
       <th scope="col">Name</th>
-      <th scope="col">Price</th>
-      <th scope="col">Buy Below</th>
-      <th scope="col">Sell Above</th>
-      <th scope="col">Market Cap</th>
-      <th scope="col">Equity</th>
-      <th scope="col">Ent. Value</th>
-      <th scope="col">P/E</th>
-      <th scope="col">P/BV</th>
-      <th scope="col">P/EBIT</th>
-      <th scope="col">EV/EBIT</th>
+      <th scope="col">Price</th> 
+      <th scope="col">Buy Price</th>
+      <th scope="col">Sell Price</th>
+
+      <th scope="col">EV/MG</th> 
+      <th scope="col">EV/CV</th> 
+
+      <th scope="col">EV/EBIT</th> 
+      <th scope="col">P/E</th>  
+      <th scope="col">P/BV</th>  
+      
+      <th scope="col">ROE</th>
+      <th scope="col">Gross Margin</th>
+      <th scope="col">EBIT Margin</th>   
+      <th scope="col">Net Profit Margin</th>    
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let com of companies" (click)="onSelect(com)">
       <td>{{com.symbol}} - {{com.name}}</td>
       <td>{{com.price}}</td>
-      <td>{{com.buyBelowPrice}}</td>
-      <td>{{com.sellAbovePrice}}</td>
-      <td>{{com.marketCap | currency : '':'':'0.0-0'}}</td>
-      <td>{{com.equity | currency : '':'':'0.0-0'}}</td>
-      <td>{{com.ev | currency : '':'':'0.0-0'}}</td>
+      <td>{{com.buyPrice}}</td>
+      <td>{{com.sellPrice}}</td>
+
+      <td>{{com.eVtoMG}}</td> 
+      <td>{{com.eVtoCV}}</td> 
+
+      <td>{{com.eVtoEbit}}</td> 
       <td>{{com.pe}}</td>
       <td>{{com.pb}}</td>
-      <td>{{com.pToEbit}}</td>
-      <td>{{com.evtoEBIT}}</td> 
+
+      <td>{{com.roe}}</td>      
+      <td>{{com.grossMargin}}</td>
+      <td>{{com.ebitMargin}}</td>
+      <td>{{com.netProfitMargin}}</td>
+
+      <!-- td>{{com.ev | currency : '':'':'0.0-0'}}</td -->     
     </tr>
   </tbody>
 </table>

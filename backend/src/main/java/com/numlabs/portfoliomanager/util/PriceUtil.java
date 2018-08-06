@@ -31,16 +31,13 @@ public class PriceUtil {
     @Autowired
     private PeriodService periodService;
 
-
     public void parseCompanyPrices(String filePath) {
         String symbol = "ASELS";
         String pathname = "D:\\projects\\portfolio.manager\\frontend\\ASELS.IS.csv";
 
        try(BufferedReader reader = new BufferedReader(new FileReader(new File(pathname)))) {
-           String line = "";
            List<DailyStockPrice> prices = new ArrayList();
-
-           line = reader.readLine();
+           String line = reader.readLine();
 
            while((line = reader.readLine()) != null) {
                String[] elements = line.split(",");
@@ -70,7 +67,7 @@ public class PriceUtil {
            System.out.println(prices);
 
            if(prices != null) {
-               Company company = companyService.findCompanyBySymbol(symbol);
+               Company company = companyService.findCompanyByTickerSymbol(symbol);
 
                if(company != null) {
                    List<PricingPeriod> periods = pricingPeriodService.getCompanyPricingPeriods(company);
@@ -99,13 +96,10 @@ public class PriceUtil {
 
         LocalDateTime end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         end = end.plusDays(1);
-
-
-
     }
 
-    public void calculateRatios(String symbol) {
-        Company company = companyService.findCompanyBySymbol(symbol);
+    public void calculatePERatio(String symbol) {
+        Company company = companyService.findCompanyByTickerSymbol(symbol);
 
         if(company == null) {
             System.out.println("Company cannot be found!");
@@ -129,12 +123,14 @@ public class PriceUtil {
         pPeriods = pPeriods.stream().sorted((p1, p2) ->{return p1.getStartDate().compareTo(p2.getStartDate());}).collect(Collectors.toList());
         periods = periods.stream().sorted((p1, p2) ->{return p2.getName().compareTo(p1.getName());}).collect(Collectors.toList());
 
+        System.out.println("date\t\t\t\t, low price ,\t\t aver price , \t\t high price");
+
         for(PricingPeriod p: pPeriods) {
             BigDecimal lowerPrice = p.getLowerPrice().multiply(p.getSharesOutstanding());
             BigDecimal averagePrice = p.getAveragePrice().multiply(p.getSharesOutstanding());
             BigDecimal highestPrice = p.getHigherPrice().multiply(p.getSharesOutstanding());
 
-            BigDecimal netProfit = p.getPeriod().getNetProfit().multiply(new BigDecimal(4));
+            BigDecimal netProfit = p.getPeriod().getIncomeStatement().getNetProfit().multiply(new BigDecimal(4));
             BigDecimal net4QProfit = getLast4PeriodsNetEarnings(p.getPeriod(), periods);//  p.getPeriod().getNetProfit().multiply(new BigDecimal(4));
 
             BigDecimal lowPE = lowerPrice.divide(netProfit, 2 , BigDecimal.ROUND_HALF_UP);
@@ -145,27 +141,29 @@ public class PriceUtil {
             BigDecimal average4PE = averagePrice.divide(net4QProfit, 2 , BigDecimal.ROUND_HALF_UP);
             BigDecimal highest4PE = highestPrice.divide(net4QProfit, 2 , BigDecimal.ROUND_HALF_UP);
 
-            System.out.println( p.getStartDate() + " - low PE: " +  lowPE + ",\t\t averPE: " + averagePE + ",\t\t high PE: " + highestPE + " 1Qx4 : \t" + netProfit);
-            System.out.println( p.getStartDate() + " - low PE: " +  low4PE + ",\t\t averPE: " + average4PE + ",\t\t high PE: " + highest4PE + " 4Q : \t" + net4QProfit);
+
+            System.out.println(p.getStartDate() + " ,\t\t " + low4PE  + "(" + p.getLowerPrice() + "),\t\t  " +  average4PE +
+                    "(" + p.getAveragePrice() + "),\t\t " + highest4PE  + "(" + p.getHigherPrice() + ")" );
+
         }
 
     }
 
     private BigDecimal getLast4PeriodsNetEarnings(Period period, List<Period> periods) {
-        BigDecimal total = period.getNetProfit();
+        BigDecimal total = period.getIncomeStatement().getNetProfit();
         BigDecimal p2;
 
         try {
             for (int i = 0; i < periods.size(); i++) {
                 if (periods.get(i).getId().equals(period.getId())) {
                     if (periods.get(i + 1) != null) {
-                        total = total.add(periods.get(i + 1).getNetProfit());
+                        total = total.add(periods.get(i + 1).getIncomeStatement().getNetProfit());
 
                         if (periods.get(i + 2) != null) {
-                            total = total.add(periods.get(i + 2).getNetProfit());
+                            total = total.add(periods.get(i + 2).getIncomeStatement().getNetProfit());
 
                             if (periods.get(i + 3) != null) {
-                                total = total.add(periods.get(i + 3).getNetProfit());
+                                total = total.add(periods.get(i + 3).getIncomeStatement().getNetProfit());
                                 return total;
                             }
                         }
@@ -174,6 +172,129 @@ public class PriceUtil {
             }
         } catch(IndexOutOfBoundsException i) {
            // System.out.println();
+        }
+
+        return new BigDecimal(-1);
+    }
+
+    public void calculatePtoBVRatios(String symbol) {
+        Company company = companyService.findCompanyByTickerSymbol(symbol);
+
+        if(company == null) {
+            System.out.println("Company cannot be found!");
+            return;
+        }
+
+        List<PricingPeriod> pPeriods = pricingPeriodService.getCompanyPricingPeriods(company);
+
+        if(pPeriods == null || pPeriods.isEmpty()) {
+            System.out.println("No pricing periods could be found for the company!");
+            return;
+        }
+
+        List<Period> periods = periodService.findPeriodsOfCompany(company);
+
+        if(periods == null || periods.isEmpty()){
+            System.out.println("No periods could be found for the company!");
+            return;
+        }
+
+        pPeriods = pPeriods.stream().sorted((p1, p2) ->{return p1.getStartDate().compareTo(p2.getStartDate());}).collect(Collectors.toList());
+       // periods = periods.stream().sorted((p1, p2) ->{return p2.getName().compareTo(p1.getName());}).collect(Collectors.toList());
+
+        System.out.println("date\t\t\t\t, low price ,\t\t aver price , \t\t high price , \t\t equity");
+
+        for(PricingPeriod p: pPeriods) {
+            BigDecimal lowerPrice = p.getLowerPrice().multiply(p.getSharesOutstanding());
+            BigDecimal averagePrice = p.getAveragePrice().multiply(p.getSharesOutstanding());
+            BigDecimal highestPrice = p.getHigherPrice().multiply(p.getSharesOutstanding());
+
+            BigDecimal equity = p.getPeriod().getBalanceSheet().getTotalAssets().subtract(p.getPeriod().getBalanceSheet().getTotalLiabilities());
+
+            BigDecimal low4PBV = lowerPrice.divide(equity, 2 , BigDecimal.ROUND_HALF_UP);
+            BigDecimal average4PBV = averagePrice.divide(equity, 2 , BigDecimal.ROUND_HALF_UP);
+            BigDecimal highest4PBV = highestPrice.divide(equity, 2 , BigDecimal.ROUND_HALF_UP);
+
+            System.out.println(p.getStartDate() + " ,\t\t " + low4PBV  + "(" + p.getLowerPrice() + "),\t\t  " +  average4PBV +
+                    "(" + p.getAveragePrice() + "),\t\t " + highest4PBV  + "(" + p.getHigherPrice() + ") , " +  equity);
+        }
+    }
+
+    public void calculateEBITtoEVRatios(String symbol) {
+        Company company = companyService.findCompanyByTickerSymbol(symbol);
+
+        if(company == null) {
+            System.out.println("Company cannot be found!");
+            return;
+        }
+
+        List<PricingPeriod> pPeriods = pricingPeriodService.getCompanyPricingPeriods(company);
+
+        if(pPeriods == null || pPeriods.isEmpty()) {
+            System.out.println("No pricing periods could be found for the company!");
+            return;
+        }
+
+        List<Period> periods = periodService.findPeriodsOfCompany(company);
+
+        if(periods == null || periods.isEmpty()) {
+            System.out.println("No periods could be found for the company!");
+            return;
+        }
+
+        pPeriods = pPeriods.stream().sorted((p1, p2) ->{return p1.getStartDate().compareTo(p2.getStartDate());}).collect(Collectors.toList());
+        periods = periods.stream().sorted((p1, p2) ->{return p2.getName().compareTo(p1.getName());}).collect(Collectors.toList());
+
+        System.out.println("date\t\t\t\t, low  ,\t\t aver  , \t\t high  , \t\t ebit");
+
+        for(PricingPeriod p: pPeriods) {
+            BigDecimal lowerPrice = p.getLowerPrice().multiply(p.getSharesOutstanding());
+            BigDecimal averagePrice = p.getAveragePrice().multiply(p.getSharesOutstanding());
+            BigDecimal highestPrice = p.getHigherPrice().multiply(p.getSharesOutstanding());
+
+            //BigDecimal ebit = p.getPeriod().getOperatingProfit();
+            BigDecimal ebit = getLast4PeriodsNetEBIT(p.getPeriod(), periods);//  p.getPeriod().getNetProfit().multiply(new BigDecimal(4));
+
+            BigDecimal totalDebt = p.getPeriod().getBalanceSheet().getLongTermDebt().add(p.getPeriod().getBalanceSheet().getShortTermDebt());
+            BigDecimal cash = p.getPeriod().getBalanceSheet().getCashAndEquivalents();
+            BigDecimal evLow = lowerPrice.add(totalDebt).subtract(cash);
+            BigDecimal evAvr = averagePrice.add(totalDebt).subtract(cash);
+            BigDecimal evHigh = highestPrice.add(totalDebt).subtract(cash);
+
+            BigDecimal lowEbitEV = evLow.divide(ebit, 2 , BigDecimal.ROUND_HALF_UP);
+            BigDecimal avrEbitEV = evAvr.divide(ebit, 2 , BigDecimal.ROUND_HALF_UP);
+            BigDecimal highEbitEV = evHigh.divide(ebit, 2 , BigDecimal.ROUND_HALF_UP);
+
+            System.out.println(p.getStartDate() + " ,\t\t " + lowEbitEV  + "(" + p.getLowerPrice() + "),\t\t  " +  avrEbitEV +
+                    "(" + p.getAveragePrice() + "),\t\t " + highEbitEV  + "(" + p.getHigherPrice() + ") , \t " +  ebit);
+
+        }
+
+    }
+
+    private BigDecimal getLast4PeriodsNetEBIT(Period period, List<Period> periods) {
+        BigDecimal total = period.getIncomeStatement().getOperatingProfit();
+        BigDecimal p2;
+
+        try {
+            for (int i = 0; i < periods.size(); i++) {
+                if (periods.get(i).getId().equals(period.getId())) {
+                    if (periods.get(i + 1) != null) {
+                        total = total.add(periods.get(i + 1).getIncomeStatement().getOperatingProfit());
+
+                        if (periods.get(i + 2) != null) {
+                            total = total.add(periods.get(i + 2).getIncomeStatement().getOperatingProfit());
+
+                            if (periods.get(i + 3) != null) {
+                                total = total.add(periods.get(i + 3).getIncomeStatement().getOperatingProfit());
+                                return total;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(IndexOutOfBoundsException i) {
+            // System.out.println();
         }
 
         return new BigDecimal(-1);

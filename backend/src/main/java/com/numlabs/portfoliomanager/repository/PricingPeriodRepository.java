@@ -1,9 +1,11 @@
 package com.numlabs.portfoliomanager.repository;
 
 import com.numlabs.portfoliomanager.model.Company;
+import com.numlabs.portfoliomanager.model.Period;
 import com.numlabs.portfoliomanager.model.PricingPeriod;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -21,5 +23,11 @@ public class PricingPeriodRepository extends PortfolioManagerRepository<PricingP
         criteriaQuery.orderBy(builder.desc(root.get("startDate")));
         List<PricingPeriod> periods = entityManager.createQuery(criteriaQuery).getResultList();
         return periods;
+    }
+
+    public void removePeriods(Period period){
+        Query q = entityManager.createQuery ("DELETE FROM com.numlabs.portfoliomanager.model.PricingPeriod p WHERE p.period = :per");
+        q.setParameter ("per", period);
+        q.executeUpdate ();
     }
 }

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Portfolio Manager - Company</title>
+    <base href="/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="portfoliomng/css/bootstrap.min.css" rel="stylesheet">
+    <link href="portfoliomng/css/dashboard.css" rel="stylesheet">
+    <link href="portfoliomng/css/company.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Menu Bar -->
+<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+    <h5 class="my-0 mr-md-auto font-weight-normal">
+        <a class="p-2 text-dark" style="text-decoration:none" href="/portfoliomng/index.html">Portfolio Manager</a>
+    </h5>
+    <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="/portfoliomng/company.html?operation=add">Add Company</a> |
+        <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=BIST">BIST Companies</a> |
+        <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=EU">EU Companies</a> |
+
+        <a class="p-2 text-dark" href="#" id="operations" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operations</a>
+        <div class="dropdown-menu" aria-labelledby="operations">
+            <a class="dropdown-item" href="/portfoliomng/company.html?operation=add">Add Company</a>
+            <a class="dropdown-item" href="/portfoliomng/exchange.html?operation=add">Add Exchange</a>
+            <a class="dropdown-item" href="/portfoliomng/period.html?operation=add">Add Period</a>
+        </div>
+
+    </nav>
+
+    <form class="form-inline my-1 my-lg-0">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+    </div>
+
+        <div class="container">
+
+            <div id="company-form" align="left" >
+
+                <h2 id="form-title">Company</h2> </br>
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control"  placeholder="name of the company" name="name" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ticker-symbol">Ticker Symbol</label>
+                    <input type="text" class="form-control" id="ticker-symbol" placeholder="ticker symbol" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="number" class="form-control" id="price" placeholder="current share price" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="exchange">Exchange</label>
+                    <select class="form-control" id="exchange" >
+                        <option value="0">Select an exchange</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="industry-sector">Industry Sector</label>
+                    <select class="form-control" id="industry-sector" >
+                        <option value="0">Select an industry sector</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock-url">Stock URL</label>
+                    <input type="text" class="form-control" id="stock-url" placeholder="a url of the stock in www.investing.com or finance.yahoo.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" rows="3"></textarea>
+                </div>
+
+                <input id="mode" type="hidden" value="add">
+                <input id="id" type="hidden" value="0">
+
+                <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addCompany()">Submit</button>
+                <button id="delete-btn" type="submit" class="btn btn-danger" onclick="removeCompany()">Delete</button>
+
+            </div>
+
+        </div>
+
+        <script src="portfoliomng/js/jquery-3.2.1.js"></script>
+        <script src="portfoliomng/js/popper.min.js"></script>
+        <script src="portfoliomng/js/bootstrap.min.js"></script>
+        <script src="portfoliomng/js/company.js"></script>
+        <script src="portfoliomng/js/search.js"></script>
+    </body>
+</html>

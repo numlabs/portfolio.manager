@@ -2,7 +2,8 @@ package com.numlabs.portfoliomanager.repository;
 
 import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.model.Company;
-import com.numlabs.portfoliomanager.model.PricingPeriod;
+import com.numlabs.portfoliomanager.model.Exchange;
+import com.numlabs.portfoliomanager.model.Period;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
@@ -39,7 +40,7 @@ public abstract class PortfolioManagerRepository<T> {
         Class clazz = null;
 
         try {
-            clazz = Class.forName("com.numlabs.portfoliomanager.model." + resolvableType.getGenerics()[0].getType().getTypeName());
+            clazz = Class.forName(resolvableType.getGenerics()[0].getType().getTypeName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -50,4 +51,7 @@ public abstract class PortfolioManagerRepository<T> {
         this.entityManager.merge(element);
     }
 
+    public void persist(T element){
+        this.entityManager.persist(element);
+    }
 }

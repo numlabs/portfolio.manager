@@ -1,6 +1,7 @@
 package com.numlabs.portfoliomanager.service;
 
 import com.numlabs.portfoliomanager.model.Company;
+import com.numlabs.portfoliomanager.model.Exchange;
 
 import java.util.List;
 
@@ -16,5 +17,11 @@ public interface CompanyService {
 
     public void update(Company com);
 
-    Company findCompanyBySymbol(String symbol);
+    public void persist(Company com);
+
+    public Company findCompanyByTickerSymbol(String symbol);
+
+    public Company findCompanyByTickerSymbolAndExchange(String tickerSymbol, Exchange exchange);
+
+    public void remove(Long id);
 }

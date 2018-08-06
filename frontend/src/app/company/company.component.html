@@ -1,29 +1,56 @@
-<form>
+<div id="company-form" align="left" >
+  <div class="alert alert-success" role="alert" *ngIf="messageSuccess">
+    {{messageSuccess}}
+  </div>
+  <div class="alert alert-info" role="alert" *ngIf="messageInfo">
+    {{messageInfo}}
+  </div>
+  <div class="alert alert-warning" role="alert" *ngIf="messageWarning">
+    <strong>Warning!</strong> {{messageWarning}}
+  </div>
+  <div class="alert alert-danger" role="alert" *ngIf="messageError">
+    <strong>Error!</strong> {{messageError}}
+  </div>
+
   <div class="form-group">
     <label for="name">Name</label>
-    <input type="text" class="form-control" id="name" placeholder="ABC">
-  </div>
+    <input type="text" class="form-control" [(ngModel)] ="company.name" placeholder="ABC" name="name" required>
+  </div> 
+
   <div class="form-group">
-    <label for="symbol">Symbol</label>
-    <input type="text" class="form-control" id="symbol" placeholder="ABC">
+    <label for="symbol">Ticker Symbol</label>
+    <input type="text" class="form-control" id="symbol" [(ngModel)] ="company.tickerSymbol" placeholder="ABC" required>
   </div>
+
   <div class="form-group">
     <label for="price">Price</label>
-    <input type="text" class="form-control" id="price" placeholder="12.34">
-  </div>  
+    <input type="number" class="form-control" id="price" [(ngModel)] ="company.price" placeholder="12.34" required>
+  </div> 
+  
   <div class="form-group">
     <label for="exchange">Exchange</label>
-    <select class="form-control" id="exchange">
-      <option>BIST</option>
-      <option>EU</option>
+    <select class="form-control" id="exchange" [(ngModel)] ="company.exchange">
+      <option *ngFor="let exchange of exchanges" [value]="exchange.id">{{exchange.name}}</option>     
     </select>
   </div>
+
+  <div class="form-group">
+    <label for="industrySectors">Industry Sector</label>
+    <select class="form-control" id="industrySector" [(ngModel)] ="company.industrySector">
+        <option *ngFor="let sector of industrySectors" [value]="sector.id">{{sector.name}}</option>   
+    </select>
+  </div>
+
   <div class="form-group">
     <label for="stock-url">Stock URL</label>
-    <input type="text" class="form-control" id="stock-url" placeholder="ABC">
+    <input type="text" class="form-control" id="stock-url" [(ngModel)] ="company.stockUrl" placeholder="ABC">
   </div>
+
   <div class="form-group">
     <label for="description">Description</label>
-    <textarea class="form-control" id="description" rows="3"></textarea>
+    <textarea class="form-control" id="description" [(ngModel)] ="company.description" rows="3"></textarea>
   </div>
-</form>
+
+  <button type="submit" class="btn btn-primary" (click)="addCompany()">Submit</button>
+
+</div>

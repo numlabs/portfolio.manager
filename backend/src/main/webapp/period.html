@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Portfolio Manager - Company</title>
+        <base href="/">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="portfoliomng/css/bootstrap.min.css" rel="stylesheet">
+        <link href="portfoliomng/css/dashboard.css" rel="stylesheet">
+        <link href="portfoliomng/css/company.css" rel="stylesheet">
+    </head>
+
+    <body>
+          <!-- Menu Bar -->
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal">
+                <a class="p-2 text-dark" style="text-decoration:none" href="/portfoliomng/index.html">Portfolio Manager</a>
+            </h5>
+            <nav class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="/portfoliomng/company.html?operation=add">Add Company</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/period.html?operation=add">Add Period</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=BIST">BIST Companies</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=EU">EU Companies</a> |
+
+                <a class="p-2 text-dark" href="#" id="operations" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operations</a>
+                <div class="dropdown-menu" aria-labelledby="operations">
+                    <a class="dropdown-item" href="/portfoliomng/company.html?operation=add">Add Company</a>
+                    <a class="dropdown-item" href="/portfoliomng/exchange.html?operation=add">Add Exchange</a>
+                    <a class="dropdown-item" href="/portfoliomng/period.html?operation=add">Add Period</a>
+                </div>
+            </nav>
+
+            <form class="form-inline my-1 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+
+        </div>
+
+        <div class="container">
+
+
+            <div id="company-form" align="left" >
+                <label>Load data from a file, or manually type</label>
+
+                <div class="form-group mx-sm-1 mb-2">
+                    <div  class="form-inline">
+                        <input type="file" id="file" name="file" class="form-control"> <span> &nbsp;&nbsp;</span>
+                        <button id="submit-period" type="submit" class="btn btn-primary" onclick="uploadPeriodsFile()">Submit Period From File</button>
+                    </div>
+                </div>
+
+                <h2>Period</h2> </br>
+
+                <div class="form-group">
+                    <label for="name">Period Name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Period name as 2018-Q1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ticker-symbol">Ticker Symbol</label>
+                    <input type="text" class="form-control" placeholder="ticker symbol" name="ticker-symbol" id="ticker-symbol" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="exchange">Exchange</label>
+                    <select class="form-control" id="exchange" >
+                        <option value="0">Select an exchange</option>
+                    </select>
+                </div>
+
+                </br>
+
+                <div class="form-group">
+                    <label for="shares-oustanding">Shares Outstanding</label>
+                    <input type="number" class="form-control" id="shares-oustanding" placeholder="total shares outstanding" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="earnings-date">Earnings Date(GMT)</label>
+                    <input type="datetime-local" class="form-control" id="earnings-date" placeholder="earnings-date" value="2018-01-01T18:30">
+                </div>
+
+                </br><h5>Balance Sheet</h5> </br>
+
+                <div class="form-group">
+                    <label for="c-assets">Current Assets</label>
+                    <input type="number" class="form-control" id="c-assets" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="cash-equv">Cash and Equivalents</label>
+                    <input type="number" class="form-control" id="cash-equv" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="trd-receivables">Trade Receivables</label>
+                    <input type="number" class="form-control" id="trd-receivables" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="inventories">Inventories</label>
+                    <input type="number" class="form-control" id="inventories" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="prepayments">Prepayments</label>
+                    <input type="number" class="form-control" id="prepayments" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="t-assets">Total Assets</label>
+                    <input type="number" class="form-control" id="t-assets" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="prop-plant-equp">Property, Plant & Equipment</label>
+                    <input type="number" class="form-control" id="prop-plant-equp" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="i-assets">Intangible Assets</label>
+                    <input type="number" class="form-control" id="i-assets" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="c-liabilities">Current liabilities</label>
+                    <input type="number" class="form-control" id="c-liabilities" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="s-debt">Short Term Debt</label>
+                    <input type="number" class="form-control" id="s-debt" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="t-payables">Trade Payables</label>
+                    <input type="number" class="form-control" id="t-payables" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="t-liabilities">total Liabilities</label>
+                    <input type="number" class="form-control" id="t-liabilities" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="l-debt">Long Term debt</label>
+                    <input type="number" class="form-control" id="l-debt" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="equity">Equity</label>
+                    <input type="number" class="form-control" id="equity" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="r-earnings">Retained earnings</label>
+                    <input type="number" class="form-control" id="r-earnings" placeholder="">
+                </div>
+
+                </br><h5>Income Statement</h5> </br>
+
+                <div class="form-group">
+                    <label for="revenue">Revenue</label>
+                    <input type="number" class="form-control" id="revenue" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="g-profit">Gross Profit</label>
+                    <input type="number" class="form-control" id="g-profit" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="g-a-expenses">Genereal & Adm. Expenses</label>
+                    <input type="number" class="form-control" id="g-a-expenses" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="smd-expenses">Selling, Mar. & Distr. Expenses</label>
+                    <input type="number" class="form-control" id="smd-expenses"" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="rd-expenses">R & D Expenses</label>
+                    <input type="number" class="form-control" id="rd-expenses" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="oth-opr-income">Other Oper. Income</label>
+                    <input type="number" class="form-control" id="oth-opr-income" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="oth-opr-expenses">Other Oper. Expenses</label>
+                    <input type="number" class="form-control" id="oth-opr-expenses" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="ebit">Operating Profit</label>
+                    <input type="number" class="form-control" id="ebit" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="n-ebit">Non-Operating Profit</label>
+                    <input type="number" class="form-control" id="n-ebit" placeholder="" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="fin-income">Financial Income</label>
+                    <input type="number" class="form-control" id="fin-income" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="fin-expenses">Financial Expenses</label>
+                    <input type="number" class="form-control" id="fin-expenses" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="tax-expenses">Tax Expenses</label>
+                    <input type="number" class="form-control" id="tax-expenses" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="n-profit">Net Profit</label>
+                    <input type="number" class="form-control" id="n-profit" placeholder="">
+                </div>
+
+
+                </br><h5>Cash Flow Statement</h5> </br>
+
+
+                <div class="form-group">
+                    <label for="cash-operations">Cash from Operating Activities</label>
+                    <input type="number" class="form-control" id="cash-operations" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="dep-amort">Dep. & Amortization</label>
+                    <input type="number" class="form-control" id="dep-amort" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="cash-investments">Cash from Investing Activities</label>
+                    <input type="number" class="form-control" id="cash-investments" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="capex">Capex</label>
+                    <input type="number" class="form-control" id="capex" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="cash-finacing">Cash from Financing Activities</label>
+                    <input type="number" class="form-control" id="cash-finacing" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="dividend">Dividend Paiments</label>
+                    <input type="number" class="form-control" id="dividend" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="debt-issued">Debt Issued</label>
+                    <input type="number" class="form-control" id="debt-issued" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="debt-repaid">Debt Repaid</label>
+                    <input type="number" class="form-control" id="debt-repaid" placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label for="cash">Cash</label>
+                    <input type="number" class="form-control" id="cash" placeholder="">
+                </div>
+
+                <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addPeriod()">Add Period</button>
+                </br>
+                </br>
+                </br>
+
+            </div>
+
+        </div>
+
+        <script src="portfoliomng/js/jquery-3.2.1.js"></script>
+        <script src="portfoliomng/js/popper.min.js"></script>
+        <script src="portfoliomng/js/bootstrap.min.js"></script>
+        <script src="portfoliomng/js/search.js"></script>
+        <script src="portfoliomng/js/period.js"></script>
+    </body>
+</html>

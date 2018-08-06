@@ -2,10 +2,7 @@ package com.numlabs.portfoliomanager.model;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity(name = "industry_sector")
 public class IndustrySector {
@@ -20,6 +17,10 @@ public class IndustrySector {
 
     @Column
     private String code;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", referencedColumnName = "ID")
+    private IndustrySector parent;
 
     public Long getId() {
         return id;
@@ -43,5 +44,13 @@ public class IndustrySector {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public IndustrySector getParent() {
+        return parent;
+    }
+
+    public void setParent(IndustrySector parent) {
+        this.parent = parent;
     }
 }

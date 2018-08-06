@@ -57,8 +57,24 @@ public class CompanyServiceImpl implements CompanyService {
         companyRepository.update(com);
     }
 
+    public void persist(Company com) {
+        companyRepository.persist(com);
+    }
+
     @Override
-    public Company findCompanyBySymbol(String symbol) {
-        return companyRepository.findCompanyBySymbol(symbol);
+    public Company findCompanyByTickerSymbol(String tickerSymbol) {
+        return companyRepository.findCompanyBySymbol(tickerSymbol);
+    }
+
+    @Override
+    public Company findCompanyByTickerSymbolAndExchange(String tickerSymbol, Exchange exchange) {
+        return companyRepository.findCompanyByTickerSymbolAndExchange(tickerSymbol, exchange);
+    }
+
+    @Override
+    public void remove(Long id) {
+        Company com = findCompany(id);
+        periodService.removeCompanyPeriods(com);
+        companyRepository.remove(com);
     }
 }

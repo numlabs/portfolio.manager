@@ -1,6 +1,7 @@
 package com.numlabs.portfoliomanager.service;
 
 import com.numlabs.portfoliomanager.model.Company;
+import com.numlabs.portfoliomanager.model.Period;
 import com.numlabs.portfoliomanager.model.PricingPeriod;
 import com.numlabs.portfoliomanager.repository.PricingPeriodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,5 +19,10 @@ public class PricingPeriodServiceImpl implements PricingPeriodService {
     @Override
     public List<PricingPeriod> getCompanyPricingPeriods(Company company) {
         return pricingPeriodRepository.getCompanyPricingPeriods(company);
+    }
+
+    @Override
+    public void removeOfPeriod(Period p) {
+        pricingPeriodRepository.removePeriods(p);
     }
 }

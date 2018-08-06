@@ -17,7 +17,7 @@ public class ExchangeController {
     @Autowired
     private ExchangeService exchangeService;
 
-    @GetMapping("exchanges")
+    @GetMapping("exchange/all")
     public ResponseEntity<List<Exchange>> getExchanges() {
         return new ResponseEntity<List<Exchange>>(exchangeService.findAll(), HttpStatus.OK);
     }

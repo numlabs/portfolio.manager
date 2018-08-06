@@ -44,19 +44,21 @@ public class CompanyUtil {
         Period lastPeriod = periods.get(0);
         BigDecimal lastSharesOut = lastPeriod.getSharesOutstanding();
         BigDecimal lastPrice = company.getPrice();
-        BigDecimal last4monthsEarningsTotal = periods.get(0).getNetProfit().add(periods.get(1).getNetProfit().add(periods.get(2).getNetProfit().add(periods.get(3).getNetProfit())));
-        BigDecimal last4monthsEBITTotal = periods.get(0).getOperatingProfit().add(periods.get(1).getOperatingProfit().add(periods.get(2).getOperatingProfit().add(periods.get(3).getOperatingProfit())));
+        BigDecimal last4monthsEarningsTotal = periods.get(0).getIncomeStatement().getNetProfit().add(periods.get(1).getIncomeStatement()
+                .getNetProfit().add(periods.get(2).getIncomeStatement().getNetProfit().add(periods.get(3).getIncomeStatement().getNetProfit())));
+        BigDecimal last4monthsEBITTotal = periods.get(0).getIncomeStatement().getOperatingProfit().add(periods.get(1).getIncomeStatement()
+                .getOperatingProfit().add(periods.get(2).getIncomeStatement().getOperatingProfit().add(periods.get(3).getIncomeStatement().getOperatingProfit())));
         BigDecimal marketCap = lastPrice.multiply(lastSharesOut);
-        BigDecimal equity = lastPeriod.getTotalAssets().subtract(lastPeriod.getTotalLiabilities());
-        BigDecimal enterpriseValue = marketCap.add(lastPeriod.getLongTermDebt().add(lastPeriod.getShortTermDebt())).subtract(lastPeriod.getNetCash());
+        BigDecimal equity = lastPeriod.getBalanceSheet().getTotalAssets().subtract(lastPeriod.getBalanceSheet().getTotalLiabilities());
+        BigDecimal enterpriseValue = marketCap.add(lastPeriod.getBalanceSheet().getLongTermDebt().add(lastPeriod.getBalanceSheet().getShortTermDebt())).subtract(lastPeriod.getBalanceSheet().getCashAndEquivalents());
 
         company.setPe(marketCap.divide(last4monthsEarningsTotal, 2, BigDecimal.ROUND_HALF_UP));
-        company.setMarketCap(marketCap);
+       // company.setMarketCap(marketCap);
         company.setPb(marketCap.divide(equity, 2, BigDecimal.ROUND_HALF_UP));
-        company.setEquity(equity);
-        company.setEVtoEBIT(enterpriseValue.divide(last4monthsEBITTotal, 2, BigDecimal.ROUND_HALF_UP ) );
-        company.setPToEbit(marketCap.divide(last4monthsEBITTotal, 2, BigDecimal.ROUND_HALF_UP ));
-        company.setEv(enterpriseValue);
+       // company.setEquity(equity);
+        company.setEvToEbit(enterpriseValue.divide(last4monthsEBITTotal, 2, BigDecimal.ROUND_HALF_UP ) );
+      //  company.setPToEbit(marketCap.divide(last4monthsEBITTotal, 2, BigDecimal.ROUND_HALF_UP ));
+       // company.setEv(enterpriseValue);
     }
 
     public void  updateCompanyPricesOfBIST() {
