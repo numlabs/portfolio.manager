@@ -2,13 +2,12 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Portfolio Manager - Company</title>
-        <base href="/">
+        <title>Portfolio Manager - Period</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="portfoliomng/css/bootstrap.min.css" rel="stylesheet">
-        <link href="portfoliomng/css/dashboard.css" rel="stylesheet">
-        <link href="portfoliomng/css/company.css" rel="stylesheet">
+        <link href="/portfoliomng/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/portfoliomng/css/dashboard.css" rel="stylesheet">
+        <link href="/portfoliomng/css/company.css" rel="stylesheet">
     </head>
 
     <body>
@@ -41,17 +40,33 @@
         <div class="container">
 
 
+
             <div id="company-form" align="left" >
+                </br>
+                <label for="search-name">Search a period</label>
+                <div class="form-inline my-1 my-lg-0">
+                    <input type="text" class="form-control" id="search-name" name="search-name" placeholder="Period name as 2018_Q1" required>&nbsp;&nbsp;
+                    <input class="form-control mr-sm-2" type="text" placeholder="ticker symbol" aria-label="Search" id="company-search">
+                    <select class="form-control mr-sm-2" id="search-exchange" >
+                        <option value="0">Select an exchange</option>
+                    </select>
+
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchPeriod()">Search</button>
+                </div>
+
+                </br></br></br>
+                <h2>Period</h2> </br>
+
+
+
                 <label>Load data from a file, or manually type</label>
 
                 <div class="form-group mx-sm-1 mb-2">
                     <div  class="form-inline">
                         <input type="file" id="file" name="file" class="form-control"> <span> &nbsp;&nbsp;</span>
-                        <button id="submit-period" type="submit" class="btn btn-primary" onclick="uploadPeriodsFile()">Submit Period From File</button>
+                        <button id="submit-period" type="submit" class="btn btn-primary" onclick="uploadPeriodsFile()">Load a Period From File</button>
                     </div>
                 </div>
-
-                <h2>Period</h2> </br>
 
                 <div class="form-group">
                     <label for="name">Period Name</label>
@@ -275,7 +290,22 @@
                     <input type="number" class="form-control" id="cash" placeholder="">
                 </div>
 
+                <div class="form-check" id="recalculate-div">
+                    <input type="checkbox" class="form-check-input" id="recalculate">
+                    <label class="form-check-label" for="recalculate">Skip Recalculation of Period Data</label>
+                </div>
+
+                </br>
+
+                <input id="mode" type="hidden" value="add">
+                <input id="id" type="hidden" value="0">
+                <input id="balance-id" type="hidden" value="0">
+                <input id="income-id" type="hidden" value="0">
+                <input id="cash-id" type="hidden" value="0">
+
                 <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addPeriod()">Add Period</button>
+                <button id="delete-btn" type="submit" class="btn btn-danger" onclick="removePeriod()">Delete</button>
+
                 </br>
                 </br>
                 </br>
@@ -284,10 +314,9 @@
 
         </div>
 
-        <script src="portfoliomng/js/jquery-3.2.1.js"></script>
-        <script src="portfoliomng/js/popper.min.js"></script>
-        <script src="portfoliomng/js/bootstrap.min.js"></script>
-        <script src="portfoliomng/js/search.js"></script>
-        <script src="portfoliomng/js/period.js"></script>
+        <script src="/portfoliomng/js/jquery-3.2.1.js"></script>
+        <script src="/portfoliomng/js/popper.min.js"></script>
+        <script src="/portfoliomng/js/bootstrap.min.js"></script>
+        <script src="/portfoliomng/js/custom/period.js"></script>
     </body>
 </html>

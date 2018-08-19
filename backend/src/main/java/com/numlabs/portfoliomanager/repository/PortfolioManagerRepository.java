@@ -54,4 +54,8 @@ public abstract class PortfolioManagerRepository<T> {
     public void persist(T element){
         this.entityManager.persist(element);
     }
+
+    public void remove(T element) {
+        this.entityManager.remove(element);
+    }
 }

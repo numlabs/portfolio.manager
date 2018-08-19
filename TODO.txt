@@ -1,0 +1,3 @@
+
+Be careful when removing periods. 
+If there is an issue when inserting a period it is preferable to remove the period and all periods above it.

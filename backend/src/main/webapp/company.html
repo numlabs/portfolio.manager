@@ -31,17 +31,20 @@
 
     </nav>
 
-    <form class="form-inline my-1 my-lg-0">
-        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-
     </div>
 
         <div class="container">
 
             <div id="company-form" align="left" >
-
+                </br>
+                <div class="form-inline my-1 my-lg-0">
+                    <input class="form-control mr-sm-2" type="text" placeholder="ticker symbol" aria-label="Search" id="company-search">
+                    <select class="form-control mr-sm-2" id="search-exchange" >
+                        <option value="0">Select an exchange</option>
+                    </select>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchCompany()">Search</button>
+                </div>
+                </br></br></br>
                 <h2 id="form-title">Company</h2> </br>
 
                 <div class="form-group">
@@ -79,6 +82,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="kap-url">KAP URL</label>
+                    <input type="text" class="form-control" id="kap-url" placeholder="a url of the company in www.kap.gov.tr">
+                </div>
+
+                <div class="form-group">
                     <label for="description">Description</label>
                     <textarea class="form-control" id="description" rows="3"></textarea>
                 </div>
@@ -86,8 +94,11 @@
                 <input id="mode" type="hidden" value="add">
                 <input id="id" type="hidden" value="0">
 
-                <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addCompany()">Submit</button>
+                <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addCompany()">Add Company</button>
                 <button id="delete-btn" type="submit" class="btn btn-danger" onclick="removeCompany()">Delete</button>
+                <button id="reset-btn" type="submit" class="btn btn-danger" onclick="resetCompany()">Reset Indicators</button>
+
+                <br/><br/>
 
             </div>
 
@@ -96,7 +107,6 @@
         <script src="portfoliomng/js/jquery-3.2.1.js"></script>
         <script src="portfoliomng/js/popper.min.js"></script>
         <script src="portfoliomng/js/bootstrap.min.js"></script>
-        <script src="portfoliomng/js/company.js"></script>
-        <script src="portfoliomng/js/search.js"></script>
+        <script src="portfoliomng/js/custom/company.js"></script>
     </body>
 </html>

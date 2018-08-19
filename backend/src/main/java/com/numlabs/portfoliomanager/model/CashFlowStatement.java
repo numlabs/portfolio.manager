@@ -1,5 +1,6 @@
 package com.numlabs.portfoliomanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class CashFlowStatement implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "period_id", referencedColumnName = "ID")
+    @JsonIgnore
     private Period period;
 
     @Column(name = "operating_activities_cash")
@@ -46,7 +48,18 @@ public class CashFlowStatement implements Serializable {
     @Column(name = "cash")
     private BigDecimal cash;
 
-    public CashFlowStatement(){}
+    public CashFlowStatement() {
+        this.id = null;
+        this.operatingActivitiesCash = new BigDecimal(0);
+        this.depAndAmrtExpenses = new BigDecimal(0);
+        this.investingActivitiesCash = new BigDecimal(0);
+        this.capitalExpenditures = new BigDecimal(0);
+        this.financingAtivitiesCash = new BigDecimal(0);
+        this.dividendPayments = new BigDecimal(0);
+        this.debtIssued = new BigDecimal(0);
+        this.debtPayments = new BigDecimal(0);
+        this.cash = new BigDecimal(0);
+    }
 
     public Long getId() {
         return id;

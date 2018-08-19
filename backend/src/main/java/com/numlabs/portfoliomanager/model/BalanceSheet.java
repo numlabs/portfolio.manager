@@ -1,5 +1,6 @@
 package com.numlabs.portfoliomanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class BalanceSheet implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "period_id", referencedColumnName = "ID")
+    @JsonIgnore
     private Period period;
 
     @Column(name = "current_assets")
@@ -67,7 +69,26 @@ public class BalanceSheet implements Serializable {
     @Column(name = "retained_earnings")
     private BigDecimal retainedEarnings;
 
-    public BalanceSheet() {}
+    public BalanceSheet() {
+        this.id = null;
+        this.currentAssets = new BigDecimal(0);
+        this.cashAndEquivalents = new BigDecimal(0);
+        this.inventories = new BigDecimal(0);
+        this.prepayments = new BigDecimal(0);
+        this.tradeReceivables = new BigDecimal(0);
+        this.totalAssets = new BigDecimal(0);
+        this.propertyPlantEquipment = new BigDecimal(0);
+        this.intangibleAssets = new BigDecimal(0);
+        this.currentLiabilities = new BigDecimal(0);
+        this.shortTermDebt = new BigDecimal(0);
+        this.tradePayables = new BigDecimal(0);
+        this.totalLiabilities = new BigDecimal(0);
+        this.longTermDebt = new BigDecimal(0);
+        this.totalDebt = new BigDecimal(0);
+        this.equity = new BigDecimal(0);
+        this.retainedEarnings = new BigDecimal(0);
+    }
+
 
     public Long getId() {
         return id;

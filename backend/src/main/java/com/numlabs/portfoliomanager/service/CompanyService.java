@@ -24,4 +24,8 @@ public interface CompanyService {
     public Company findCompanyByTickerSymbolAndExchange(String tickerSymbol, Exchange exchange);
 
     public void remove(Long id);
+
+    void calculateIndicators(Company company);
+
+    void reset(Company company);
 }

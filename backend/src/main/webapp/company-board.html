@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Portfolio Manager</title>
+        <base href="/">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="portfoliomng/css/bootstrap.min.css" rel="stylesheet">
+        <link href="portfoliomng/css/dashboard.css" rel="stylesheet">
+    </head>
+    <body>
+
+        <!-- Menu Bar -->
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal">
+                <a class="p-2 text-dark" style="text-decoration:none" href="/portfoliomng/index.html">Portfolio Manager</a>
+            </h5>
+            <nav class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=BIST">BIST Companies</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=EU">EU Companies</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/company.html">Company</a> |
+                <a class="p-2 text-dark" href="/portfoliomng/period.html">Period</a> |
+
+                <a class="p-2 text-dark" href="#" id="company-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">????</a>
+                <div class="dropdown-menu" aria-labelledby="company-menu">
+                    <a class="dropdown-item" href="/portfoliomng/company.html?operation=add">Add Company</a>
+                    <a class="dropdown-item" href="/portfoliomng/company.html?operation=edit">Edit Company</a>
+                    <a class="dropdown-item" href="/portfoliomng/period.html?operation=add">Add Period</a>
+                </div> |
+
+                <a class="p-2 text-dark" href="/portfoliomng/settings.html">Settings</a>
+            </nav>
+
+            <div class="form-inline my-1 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="symbol.exchange" aria-label="Search" id="company-search-text">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchCompany()">Search</button>
+            </div>
+
+        </div>
+
+        <div class="container">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr id="period-table-headers"></tr>
+                </thead>
+                <tbody id="period-table-body"/>
+            </table>
+
+        </div>
+
+        <script src="portfoliomng/js/jquery-3.2.1.js"></script>
+        <script src="portfoliomng/js/popper.min.js"></script>
+        <script src="portfoliomng/js/bootstrap.min.js"></script>
+        <script src="portfoliomng/js/company-board.js"></script>
+    </body>
+</html>

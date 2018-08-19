@@ -15,4 +15,14 @@ public interface PeriodService {
     void addPeriod(Period period) throws PortfolioManagerException;
 
     Period findPeriodOfCompanyByPeriodName(Company company, String periodName);
+
+    void calculatePeriodMargins();
+
+    void update(Period period);
+
+    void remove(Period period);
+
+    List<Period> findPeriodsOfCompanyForYear(Company company, String year);
+
+    void resetPeriodIndicators(Period period);
 }

@@ -1,5 +1,6 @@
 package com.numlabs.portfoliomanager.parser;
 
+import com.numlabs.portfoliomanager.PortfolioManagerException;
 import com.numlabs.portfoliomanager.model.BalanceSheet;
 import com.numlabs.portfoliomanager.model.CashFlowStatement;
 import com.numlabs.portfoliomanager.model.IncomeStatement;
@@ -23,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 @Component
 public class KAPParser {
@@ -36,142 +38,256 @@ public class KAPParser {
         return null;
     }
 
-    private Period readFile(Iterator<Row> iterator) throws ParseException {
-        Period p = new Period();
+    private static String[] BS_ELEMENTS = new String[] { "Cash and cash equivalents", "Trade Receivables", "Inventories",
+            "Prepayments", "Total current assets", "Trade Receivables", "Property, plant and equipment", "Intangible assets and goodwill",
+            "Prepayments", "Total assets",
+            "Current Borrowings", "Trade Payables", "Total current liabilities", "Long Term Borrowings", "Trade Payables",
+            "Total liabilities", "Prior Years' Profits or Losses", "Total equity" };
+
+    private static String[] IS_ELEMENTS = new String[] {"Revenue", "GROSS PROFIT (LOSS)", "General Administrative Expenses", "Marketing Expenses",
+            "Research and development expense", "Other Income from Operating Activities", "Other Expenses from Operating Activities",
+            "PROFIT (LOSS) FROM OPERATING ACTIVITIES", "Finance income", "Finance costs", "Tax (Expense) Income, Continuing Operations", "PROFIT (LOSS)" };
+
+    private static String[] CF_ELEMENTS = new String[] { "CASH FLOWS FROM (USED IN) OPERATING ACTIVITIES", "Adjustments for depreciation and amortisation expense",
+            "CASH FLOWS FROM (USED IN) INVESTING ACTIVITIES", "Purchase of Property, Plant, Equipment and Intangible Assets",
+            "CASH FLOWS FROM (USED IN) FINANCING ACTIVITIES", "Proceeds from borrowings", "Repayments of borrowings",
+            "Dividends Paid", "CASH AND CASH EQUIVALENTS AT THE END OF THE PERIOD" };
+
+    private Period readFile(Iterator<Row> iterator) throws ParseException, PortfolioManagerException {
+        Period period = new Period();
         BalanceSheet bs = new BalanceSheet();
         IncomeStatement is = new IncomeStatement();
         CashFlowStatement cf = new CashFlowStatement();
-    //    bs.setPeriod(p);
-     //   is.setPeriod(p);
-     //   cf.setPeriod(p);
 
-        p.setBalanceSheet(bs);
-        p.setIncomeStatement(is);
-        p.setCashFlowStatement(cf);
+        period.setBalanceSheet(bs);
+        period.setIncomeStatement(is);
+        period.setCashFlowStatement(cf);
 
+        setEarningsDateAndName(period, iterator);
+        readBalanceStatement(bs, iterator);
+        readIncomeStatement(is, iterator);
+        readCashFlowStatement(cf, iterator);
+
+        return period;
+    }
+
+    private void readBalanceStatement(BalanceSheet bs, Iterator<Row> iterator) throws ParseException {
+        int elementsCounter = 0;
         BigDecimal multiplier = null;
-        int rowCursor = 1;
 
         while (iterator.hasNext()) {
-            Row currentRow = iterator.next();
-            Iterator<Cell> cellIter = currentRow.cellIterator();
+            Iterator<Cell> cellIter = iterator.next().cellIterator();
             String currentElementKey = cellIter.next().getStringCellValue().trim();
 
-            if (currentElementKey.startsWith("Publish Date") && rowCursor == 5) {
+            if (currentElementKey.startsWith("Presentation Currency")) {
+                multiplier = readMultiplier(cellIter);
+            } else {
+                try {
+                    cellIter.next();
+                    currentElementKey = cellIter.next().getStringCellValue().trim();
+                } catch(NoSuchElementException e) {
+                    continue;
+                }
+
+                if (currentElementKey.startsWith(BS_ELEMENTS[elementsCounter])) { // this guaranties the order of elements coming
+                    if(currentElementKey.trim().startsWith("Cash and cash equivalents")) {
+                        bs.setCashAndEquivalents(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Trade Receivables")) {
+                        BigDecimal temp = readPeriodValue(cellIter, multiplier,3);
+                        bs.setTradeReceivables(bs.getTradeReceivables().add(temp));
+                    } else if(currentElementKey.trim().startsWith("Inventories")) {
+                        BigDecimal temp = readPeriodValue(cellIter, multiplier,3);
+                        bs.setInventories(bs.getInventories().add(temp));
+                    }  else if(currentElementKey.trim().startsWith("Prepayments")) {
+                        BigDecimal temp = readPeriodValue(cellIter, multiplier,3);
+                        bs.setPrepayments(bs.getPrepayments().add(temp));
+                    } else if(currentElementKey.trim().startsWith("Total current assets")) {
+                        bs.setCurrentAssets(readPeriodValue(cellIter,  multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Property, plant and equipment")) {
+                        bs.setPropertyPlantEquipment(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Intangible assets and goodwill")) {
+                        bs.setIntangibleAssets(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Total assets")) {
+                        bs.setTotalAssets(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Current Borrowings")) {
+                        bs.setShortTermDebt(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Trade Payables")) {
+                        BigDecimal temp = readPeriodValue(cellIter, multiplier,3);
+                        bs.setTradePayables(bs.getTradePayables().add(temp));
+                    } else if(currentElementKey.trim().startsWith("Total current liabilities")) {
+                        bs.setCurrentLiabilities(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Long Term Borrowings")) {
+                        bs.setLongTermDebt(readPeriodValue(cellIter, multiplier,3));
+                        bs.setTotalDebt(bs.getShortTermDebt().add(bs.getLongTermDebt()));
+                    } else if(currentElementKey.trim().startsWith("Total liabilities")) {
+                        bs.setTotalLiabilities(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Prior Years' Profits or Losses")) {
+                        bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Prior Years' Profits or Losses")) {
+                        bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
+                    } else if(currentElementKey.trim().startsWith("Total equity")) {
+                        bs.setEquity(readPeriodValue(cellIter, multiplier,3));
+                    }
+                    elementsCounter++;
+
+                    if (elementsCounter == BS_ELEMENTS.length) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void readIncomeStatement(IncomeStatement is, Iterator<Row> iterator) throws ParseException {
+        int elementsCounter = 0;
+        BigDecimal multiplier = null;
+
+        while (iterator.hasNext()) {
+            Iterator<Cell> cellIter = iterator.next().cellIterator();
+            String currentElementKey = cellIter.next().getStringCellValue().trim();
+
+            if (currentElementKey.startsWith("Presentation Currency")) {
+                multiplier = readMultiplier(cellIter);
+            } else {
+                cellIter.next();
+
+                try {
+                    currentElementKey = cellIter.next().getStringCellValue().trim();
+                } catch(NoSuchElementException e) {
+                    continue;
+                }
+
+                if (currentElementKey.startsWith(IS_ELEMENTS[elementsCounter])) { // this guaranties the order of elements coming
+                    if(currentElementKey.trim().startsWith("Revenue")) {
+                        is.setRevenue(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("GROSS PROFIT (LOSS)")) {
+                        is.setGrossProfit(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("General Administrative Expenses")) {
+                        is.setGeneralAdministrativeExpenses(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Marketing Expenses")) {
+                        is.setSellingMarketingDistributionExpenses(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Research and development expense")) {
+                        is.setResearchDevelopmentExpenses(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Other Income from Operating Activities")) {
+                        is.setOtherOperatingIncome(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Other Expenses from Operating Activities")) {
+                        is.setOtherOperatingExpense(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("PROFIT (LOSS) FROM OPERATING ACTIVITIES")) {
+                        is.setOperatingProfit(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Finance income")) {
+                        is.setFinancialIncome(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Finance costs")) {
+                        is.setFinancialExpenses(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("Tax (Expense) Income, Continuing Operations")) {
+                        is.setTaxExpenses(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.trim().startsWith("PROFIT (LOSS)")) {
+                        is.setNetProfit(readPeriodValue(cellIter, multiplier, 4));
+                    }
+
+                    elementsCounter++;
+
+                    if (elementsCounter == IS_ELEMENTS.length) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void readCashFlowStatement(CashFlowStatement cf, Iterator<Row> iterator) throws ParseException {
+        int elementsCounter = 0;
+        BigDecimal multiplier = null;
+
+        while (iterator.hasNext()) {
+            Iterator<Cell> cellIter = iterator.next().cellIterator();
+            String currentElementKey = cellIter.next().getStringCellValue().trim();
+
+            if (currentElementKey.startsWith("Presentation Currency")) {
+                multiplier = readMultiplier(cellIter);
+            } else {
+                cellIter.next();
+
+                try {
+                    currentElementKey = cellIter.next().getStringCellValue().trim();
+                } catch(NoSuchElementException e) {
+                    continue;
+                }
+
+                if (currentElementKey.startsWith(CF_ELEMENTS[elementsCounter])) { // this guaranties the order of elements coming
+                    if(currentElementKey.trim().startsWith("CASH FLOWS FROM (USED IN) OPERATING ACTIVITIES")) {
+                        cf.setOperatingActivitiesCash(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("Adjustments for depreciation and amortisation expense")) {
+                        cf.setDepAndAmrtExpenses(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("CASH FLOWS FROM (USED IN) INVESTING ACTIVITIES")) {
+                        cf.setInvestingActivitiesCash(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("Purchase of Property, Plant, Equipment and Intangible Assets")) {
+                        cf.setCapitalExpenditures(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("CASH FLOWS FROM (USED IN) FINANCING ACTIVITIES")) {
+                        cf.setFinancingAtivitiesCash(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("Proceeds from borrowings")) {
+                        cf.setDebtIssued(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("Repayments of borrowings")) {
+                        cf.setDebtPayments(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("Dividends Paid")) {
+                        cf.setDividendPayments(readPeriodValue(cellIter, multiplier, 3));
+                    } else if(currentElementKey.trim().startsWith("CASH AND CASH EQUIVALENTS AT THE END OF THE PERIOD")) {
+                        cf.setCash(readPeriodValue(cellIter, multiplier, 3));
+                    }
+                    elementsCounter++;
+
+                    if (elementsCounter == CF_ELEMENTS.length) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private BigDecimal readMultiplier(Iterator<Cell> cellIter) {
+        String currencyMultiplier = cellIter.next().getStringCellValue().trim();
+
+        if(currencyMultiplier.length() > 2) {
+            String multi = currencyMultiplier.substring(0, currencyMultiplier.indexOf("TL") - 1).trim();
+
+            if(multi.length() != 0) {
+                return new BigDecimal(multi.replace(".", ""));
+            } else {
+                return new BigDecimal(1);
+            }
+        } else {
+            return new BigDecimal(1);
+        }
+    }
+
+    private void setEarningsDateAndName(Period period, Iterator<Row> iterator) throws ParseException, PortfolioManagerException {
+
+        while (iterator.hasNext()) {
+            Iterator<Cell> cellIter = iterator.next().cellIterator();
+            String currentElementKey = cellIter.next().getStringCellValue().trim();
+
+            if (currentElementKey.startsWith("Publish Date")) {
                 String earningsDate = currentElementKey.substring(currentElementKey.indexOf(":") + 1, currentElementKey.indexOf("Di"));
                 DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
                 Date dt = df.parse(earningsDate);
-                p.setEarningsDate(dt);
+                period.setEarningsDate(dt);
 
                 String year = currentElementKey.substring(currentElementKey.indexOf("r:") + 2, currentElementKey.indexOf("Period") - 1);
-                char period = currentElementKey.trim().charAt(currentElementKey.length() - 1);
-                p.setName(year + "_Q" + period);
-            } else  if (currentElementKey.startsWith("Presentation Currency") && (rowCursor == 6 || rowCursor == 301 || rowCursor == 461)) {
-                String currencyMultiplier = cellIter.next().getStringCellValue().trim();
-
-                if(currencyMultiplier.length() > 2) {
-                    String multi = currencyMultiplier.substring(0, currencyMultiplier.indexOf("TL") - 1).trim();
-
-                    if(multi.length() != 0) {
-                        multiplier = new BigDecimal(multi.replace(".", ""));
-                    } else {
-                        multiplier = new BigDecimal(1);
-                    }
-                } else {
-                    multiplier = new BigDecimal(1);
-                }
-            } else if (rowCursor == 13) {
-                bs.setCashAndEquivalents(readPeriodValue(cellIter, "Cash and cash equivalents", multiplier,3));
-            } else if (rowCursor == 31) {
-                bs.setTradeReceivables(readPeriodValue(cellIter, "Trade Receivables", multiplier,3));
-            } else if (rowCursor == 48) {
-                bs.setInventories(readPeriodValue(cellIter, "Inventories", multiplier,3));
-            } else if (rowCursor == 51) {
-                bs.setPrepayments(readPeriodValue(cellIter, "Prepayments", multiplier,3));
-            } else if (rowCursor == 63) {
-                bs.setCurrentAssets(readPeriodValue(cellIter, "Total current assets", multiplier,3));
-            } else if (rowCursor == 102) {
-                bs.setPropertyPlantEquipment(readPeriodValue(cellIter, "Property, plant and equipment", multiplier,3));
-            } else if (rowCursor == 115) {
-                bs.setIntangibleAssets(readPeriodValue(cellIter, "Intangible assets and goodwill", multiplier,3));
-            } else if (rowCursor == 135) {
-                bs.setTotalAssets(readPeriodValue(cellIter, "Total assets", multiplier,3));
-            } else if (rowCursor == 138) {
-                bs.setShortTermDebt(readPeriodValue(cellIter, "Current Borrowings", multiplier,3));
-            } else if (rowCursor == 164) {
-                bs.setTradePayables(readPeriodValue(cellIter, "Trade Payables", multiplier,3));
-            } else if (rowCursor == 196) {
-                bs.setCurrentLiabilities(readPeriodValue(cellIter, "Total current liabilities", multiplier,3));
-            } else if (rowCursor == 198) {
-                bs.setLongTermDebt(readPeriodValue(cellIter, "Long Term Borrowings", multiplier,3));
-                bs.setTotalDebt(bs.getShortTermDebt().add(bs.getLongTermDebt()));
-            } else if (rowCursor == 246) {
-                bs.setTotalLiabilities(readPeriodValue(cellIter, "Total liabilities", multiplier,3));
-            } else if (rowCursor == 296) {
-                bs.setRetainedEarnings(readPeriodValue(cellIter, "Prior Years' Profits or Losses", multiplier,3));
-            } else if (rowCursor == 299) {
-                bs.setEquity(readPeriodValue(cellIter, "Total equity", multiplier,3));
-            } else if (rowCursor == 307) {
-                is.setRevenue(readPeriodValue(cellIter, "Revenue", multiplier, 4));
-            } else if (rowCursor == 335) {
-                is.setGrossProfit(readPeriodValue(cellIter, "GROSS PROFIT (LOSS)", multiplier, 4));
-            } else if (rowCursor == 336) {
-                is.setGeneralAdministrativeExpenses(readPeriodValue(cellIter, "General Administrative Expenses", multiplier, 4));
-            } else if (rowCursor == 337) {
-                is.setSellingMarketingDistributionExpenses(readPeriodValue(cellIter, "Marketing Expenses", multiplier, 4));
-            } else if (rowCursor == 338) {
-                is.setResearchDevelopmentExpenses(readPeriodValue(cellIter, "Research and development expense", multiplier, 4));
-            } else if (rowCursor == 339) {
-                is.setOtherOperatingIncome(readPeriodValue(cellIter, "Other Income from Operating Activities", multiplier, 4));
-            } else if (rowCursor == 340) {
-                is.setOtherOperatingExpense(readPeriodValue(cellIter, "Other Expenses from Operating Activities", multiplier, 4));
-            } else if (rowCursor == 342) {
-                is.setOperatingProfit(readPeriodValue(cellIter, "PROFIT (LOSS) FROM OPERATING ACTIVITIES", multiplier, 4));
-            } else if (rowCursor == 354) {
-                is.setFinancialIncome(readPeriodValue(cellIter, "Finance income", multiplier, 4));
-            } else if (rowCursor == 355) {
-                is.setFinancialExpenses(readPeriodValue(cellIter, "Finance costs", multiplier, 4));
-            } else if (rowCursor == 358) {
-                is.setTaxExpenses(readPeriodValue(cellIter, "Tax (Expense) Income, Continuing Operations", multiplier, 4));
-            } else if (rowCursor == 363) {
-                is.setNetProfit(readPeriodValue(cellIter, "PROFIT (LOSS)", multiplier, 4));
-            } else if (rowCursor == 466) {
-                cf.setOperatingActivitiesCash(readPeriodValue(cellIter, "CASH FLOWS FROM (USED IN) OPERATING ACTIVITIES", multiplier, 3));
-            } else if (rowCursor == 471) {
-                cf.setDepAndAmrtExpenses(readPeriodValue(cellIter, "Adjustments for depreciation and amortisation expense", multiplier, 3));
-            } else if (rowCursor == 577) {
-                cf.setInvestingActivitiesCash(readPeriodValue(cellIter, "CASH FLOWS FROM (USED IN) INVESTING ACTIVITIES", multiplier, 3));
-            } else if (rowCursor == 591) {
-                cf.setCapitalExpenditures(readPeriodValue(cellIter, "Purchase of property, plant and equipment", multiplier, 3));
-            } else if (rowCursor == 618) {
-                cf.setFinancingAtivitiesCash(readPeriodValue(cellIter, "CASH FLOWS FROM (USED IN) FINANCING ACTIVITIES", multiplier, 3));
-            } else if (rowCursor == 634) {
-                cf.setDebtIssued(readPeriodValue(cellIter, "Proceeds from borrowings", multiplier, 3));
-            } else if (rowCursor == 639) {
-                cf.setDebtPayments(readPeriodValue(cellIter, "Repayments of borrowings", multiplier, 3));
-            } else if (rowCursor == 650) {
-                cf.setDividendPayments(readPeriodValue(cellIter, "Dividends Paid", multiplier, 3));
-            } else if (rowCursor == 662) {
-                cf.setCash(readPeriodValue(cellIter, "CASH AND CASH EQUIVALENTS AT THE END OF THE PERIOD", multiplier, 3));
+                char periodNumber = currentElementKey.trim().charAt(currentElementKey.length() - 1);
+                period.setName(year + "_Q" + periodNumber);
+                return;
             }
-
-            rowCursor++;
         }
-       return p;
+
+        throw new PortfolioManagerException("Earning date and name could not be read.");
     }
 
-    private BigDecimal readPeriodValue(Iterator<Cell> cellIter, String fieldName, BigDecimal multiplier, int passReads) throws ParseException {
-        cellIter.next();
-        String currentCell = cellIter.next().getStringCellValue().trim();
+    private BigDecimal readPeriodValue(Iterator<Cell> cellIter, BigDecimal multiplier, int passReads) throws ParseException {
 
-        if(currentCell.startsWith(fieldName)) {
-            for(int i =0; i< passReads;i++){
-                cellIter.next();
-            }
-            return getValue(cellIter.next(), multiplier);
-        } else  {
-            throw new ParseException(fieldName + " not found.", -1);
+        for(int i = 0; i < passReads; i++) {
+            cellIter.next();
         }
+
+        return getValue(cellIter.next(), multiplier);
     }
 
     private BigDecimal getValue(Cell cell,  BigDecimal multiplier) {

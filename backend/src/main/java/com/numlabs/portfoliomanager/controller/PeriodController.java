@@ -2,22 +2,31 @@ package com.numlabs.portfoliomanager.controller;
 
 import com.numlabs.portfoliomanager.PortfolioManagerException;
 import com.numlabs.portfoliomanager.model.Company;
+import com.numlabs.portfoliomanager.model.Exchange;
 import com.numlabs.portfoliomanager.model.Period;
 import com.numlabs.portfoliomanager.parser.KAPParser;
 import com.numlabs.portfoliomanager.service.CompanyService;
+import com.numlabs.portfoliomanager.service.ExchangeService;
 import com.numlabs.portfoliomanager.service.PeriodService;
+
+import org.apache.commons.collections4.map.LinkedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
 public class PeriodController {
+
+    @Autowired
+    private ExchangeService exchangeService;
 
     @Autowired
     private PeriodService periodService;
@@ -53,11 +62,53 @@ public class PeriodController {
             }
         }
 
-        return new ResponseEntity<>(period, HttpStatus.PRECONDITION_FAILED);
+        return new ResponseEntity<>(period, HttpStatus.OK);
     }
 
     @PostMapping("/period/add")
     public ResponseEntity<String> addPeriod(@RequestBody Period period) {
+        Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());
+
+        if(company == null) {
+            return new ResponseEntity<String>("A company with the specified " + period.getCompany().getTickerSymbol() +
+                    " ticker symbol and " + period.getCompany().getExchange().getId() + "  exchange id does not exist.",
+                    HttpStatus.EXPECTATION_FAILED);
+        }
+
+        Period existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company, period.getName());
+
+        if(existingPeriod != null) {
+            return new ResponseEntity<String>("Period already exist.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        if(!period.getName().matches("20[1-9]{2}_Q[1-4]{1}")) {
+            return new ResponseEntity<String>("Name format is not in correct format.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        int periodNumber = Integer.parseInt(period.getName().substring(period.getName().length()-1, period.getName().length()));
+
+        if(periodNumber != 1) {
+            existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company,
+                    period.getName().substring(0, period.getName().length() - 1) + (periodNumber - 1));
+
+            if(existingPeriod == null) {
+                return new ResponseEntity<String>("Required previous period is missing.", HttpStatus.EXPECTATION_FAILED);
+            }
+        }
+
+        try {
+            periodService.addPeriod(period);
+        } catch (PortfolioManagerException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>("There was an issue at the service level.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        System.out.println(period);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @PostMapping("/period/update")
+    public ResponseEntity<String> updatePeriod(@RequestBody Period period) {
         Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());
 
         if(company == null) {
@@ -68,18 +119,57 @@ public class PeriodController {
 
         Period existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company, period.getName());
 
-        if(existingPeriod != null) {
-            return new ResponseEntity<String>("Period already exist.", HttpStatus.PRECONDITION_FAILED);
+        if(existingPeriod == null) {
+            return new ResponseEntity<String>("Period does not exist.", HttpStatus.OK);
         }
 
-        try {
-            periodService.addPeriod(period);
-        } catch (PortfolioManagerException e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("There was an issue at the service level.", HttpStatus.NOT_ACCEPTABLE);
+        periodService.update(period);
+
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @RequestMapping("period/search/{searchCriteria}")
+    public ResponseEntity<Period> searchPeriod(@PathVariable String searchCriteria) {
+
+        if(searchCriteria.isEmpty() || !searchCriteria.contains(".")) {
+            return new ResponseEntity<> (new Period(), HttpStatus.OK);
         }
 
-        System.out.println(period);
+        String[] splitted = searchCriteria.split("\\.");
+
+        Exchange exchange = exchangeService.findExchange(Long.valueOf(splitted[1]));
+
+        if(exchange == null) {
+            MultiValueMap<String,String> params = new LinkedMultiValueMap<String,String>();
+            params.set("error.message", "Missing exchange for provided id: " + splitted[1]);
+            return new ResponseEntity<> (new Period(), params, HttpStatus.OK);
+        }
+
+        Company company = companyService.findCompanyByTickerSymbolAndExchange(splitted[0], exchange);
+
+        if(company == null) {
+            return new ResponseEntity<> (new Period(), HttpStatus.OK);
+        }
+
+        Period period = periodService.findPeriodOfCompanyByPeriodName(company,splitted[2]);
+
+        if(period == null) {
+            return new ResponseEntity<> (new Period(), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(period, HttpStatus.OK);
+    }
+
+    /**
+     * FIXME implement proper algorithm for removing periods
+     * @param id
+     * @return
+     */
+    @RequestMapping("FIXME period/remove/{id}")
+    public ResponseEntity<String> removePeriodById(@PathVariable Long id) {
+
+        Period period = periodService.getPeriodById(id);
+        periodService.remove(period);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 }

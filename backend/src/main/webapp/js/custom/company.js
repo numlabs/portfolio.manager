@@ -13,6 +13,7 @@ $(document).ready(function() {
 	var result = parseQueryString(urlToParse);
 
     $("#delete-btn").hide();
+    $("#reset-btn").hide();
 
 	$.get("/portfoliomng/exchange/all", function(data, status) {
             if (status == 'success') {
@@ -23,7 +24,8 @@ $(document).ready(function() {
                 }
 
                 $('#exchange').append(exchanges);
-            } else {
+                $('#search-exchange').append(exchanges);
+             } else {
                 alert("No exchanges found registered!");
             }
         });
@@ -47,6 +49,7 @@ $(document).ready(function() {
 	} else if(result.operation == 'edit') {
         $('#form-title').html("Edit Company");
         $("#delete-btn").show();
+         $("#reset-btn").show();
 
         $.get("/portfoliomng/company/" + result.id, function(data, status) {
                if (status == 'success') {
@@ -77,6 +80,19 @@ function setFields(data) {
    $('#exchange').val(data.exchange.id);
    $('#id').val(data.id);
    $('#description').val(data.description);
+   $('#kap-url').val(data.kapUrl);
+}
+
+function resetFields() {
+   $('#name').val('');
+   $('#ticker-symbol').val('');
+   $('#industry-sector').val(0);
+   $('#price').val(0);
+   $('#stock-url').val('');
+   $('#exchange').val(0);
+   $('#id').val(0);
+   $('#description').val('');
+   $('#kap-url').val('');
 }
 
 function addCompany() {
@@ -87,6 +103,7 @@ function addCompany() {
 	var sector = $('#industry-sector').val();
     var stockUrl = $('#stock-url').val();
 	var description = $('#description').val();
+    var kapUrl = $('#kap-url').val();
 
 	if (tickerSymbol == '' || exchange == '0' || price == '' || name == '' || sector == '0' || stockUrl == '') {
 		alert("Please fill all required fields!");
@@ -98,7 +115,8 @@ function addCompany() {
 			"tickerSymbol" : tickerSymbol,
 			"price" : price,
 			"stockUrl": stockUrl,
-            "exchange": { "id": exchange }
+            "exchange": { "id": exchange },
+            "kapUrl": kapUrl
 		};
 
 		var execUrl = "/portfoliomng/company/add";
@@ -107,8 +125,6 @@ function addCompany() {
 		if(oprMode == "edit") {
 		    execUrl = "/portfoliomng/company/update";
 		    company.id = $('#id').val();
-		} else {
-		    execUrl = "/portfoliomng/company/" + oprMode;
 		}
 
 		jQuery.ajax({
@@ -135,9 +151,49 @@ function removeCompany() {
            alert("The operation completed successfully.");
            $("#delete-btn").hide();
            $("#submit-btn").hide();
+           $("#reset-btn").hide();
        } else {
             alert("Error code: " + data.status + " returned.");
        }
    });
 }
 
+function searchCompany() {
+    var tickerSymbol = $('#company-search').val();
+    var exchange = $('#search-exchange').val();
+
+    if(tickerSymbol.trim() == '' || exchange == 0)  {
+        alert("Please fill required ticket symbol and exchange fields. ");
+    } else {
+        resetFields();
+
+        $("#delete-btn").hide();
+        $("#submit-btn").html("Add Company");
+        $("#reset-btn").hide();
+
+        $.get("/portfoliomng/company/search/" + tickerSymbol + "." + exchange, function(data, status) {
+           if (status == 'success') {
+                if(data.name != null && data.name != undefined) {
+                    setFields(data);
+                    $("#delete-btn").show();
+                    $("#reset-btn").show();
+                    $("#submit-btn").html("Update");
+                    $('#mode').val("edit");
+                }
+            } else {
+                $('#mode').val("add");
+                alert("No company found for the specified criteria.");
+            }
+        });
+    }
+}
+
+function resetCompany() {
+  $.get("/portfoliomng/company/reset/" + $('#id').val(), function(data, status) {
+       if (status == 'success') {
+           alert("The operation completed successfully.");
+       } else {
+            alert("Error code: " + data.status + " returned.");
+       }
+   });
+}

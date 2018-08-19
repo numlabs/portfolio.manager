@@ -38,22 +38,65 @@ public class Company implements Serializable {
 
     @Column(name="description")
     private String description;
-        // transient fields
+
+    @Column(name="ev_ebit_max")
+    private BigDecimal evToEbitMax;
+
+    @Column(name="ev_ebit_min")
+    private BigDecimal evToEbitMin;
+
+    @Column(name="ebit")
+    private BigDecimal ebit;
+
+    @Column(name="ebit_last_period")
+    private BigDecimal ebitLastPeriod;
+
+    @Column(name="equity")
+    private BigDecimal equity;
+
+    @Column(name="total_debt")
+    private BigDecimal totalDebt;
+
+    @Column(name="cash_equivalents")
+    private BigDecimal cashEquivalents;
+
+    @Column(name="shares_outstanding")
+    private BigDecimal sharesOutstanding;
+
+    @Column(name="money_generated")
+    private BigDecimal moneyGenerated;
+
+    @Column(name="company_value")
+    private BigDecimal companyValue;
+
+    @Column(name="gross_margin")
+    private BigDecimal grossMargin;
+
+    @Column(name="ebit_margin")
+    private BigDecimal ebitMargin;
+
+    @Column(name="net_profit_margin")
+    private BigDecimal netProfitMargin;
+
+    @Column(name="roe")
+    private BigDecimal roe;
+
+    @Column(name="net_profit")
+    private BigDecimal netProfit;
+
+    @Column(name="book_value")
+    private BigDecimal bookValue;
+
+    @Column(name="kap_url")
+    private String kapUrl;
+
+    // transient fields
 
     @Transient
     private BigDecimal evToEbit;
 
     @Transient
-    private BigDecimal evToEbitMax;
-
-    @Transient
-    private BigDecimal evToEbitMin;
-
-    @Transient
-    private BigDecimal pe; // price to earnings
-
-    @Transient
-    private BigDecimal pb; // price to book value
+    private BigDecimal evToEbitLastPeriod;
 
     @Transient
     private BigDecimal evToMg;
@@ -62,21 +105,111 @@ public class Company implements Serializable {
     private BigDecimal evToCv;
 
     @Transient
+    private BigDecimal pe; // price to earnings
+
+    @Transient
+    private BigDecimal pb; // price to book value
+
+    @Transient
     private List<Period> periods;
 
-    @Transient
-    private BigDecimal roe;
-
-    @Transient
-    private BigDecimal grossMargin;
-
-    @Transient
-    private BigDecimal ebitMargin;
-
-    @Transient
-    private BigDecimal netProfitMargin;
-
     public Company() {}
+
+    public String getKapUrl() {
+        return kapUrl;
+    }
+
+    public void setKapUrl(String kapUrl) {
+        this.kapUrl = kapUrl;
+    }
+
+    public BigDecimal getBookValue() {
+        return bookValue;
+    }
+
+    public void setBookValue(BigDecimal bookValue) {
+        this.bookValue = bookValue;
+    }
+
+    public BigDecimal getEvToEbitLastPeriod() {
+        return evToEbitLastPeriod;
+    }
+
+    public void setEvToEbitLastPeriod(BigDecimal evToEbitLastPeriod) {
+        this.evToEbitLastPeriod = evToEbitLastPeriod;
+    }
+
+    public BigDecimal getEbitLastPeriod() {
+        return ebitLastPeriod;
+    }
+
+    public void setEbitLastPeriod(BigDecimal ebitLastPeriod) {
+        this.ebitLastPeriod = ebitLastPeriod;
+    }
+
+    public BigDecimal getEbit() {
+        return ebit;
+    }
+
+    public void setEbit(BigDecimal ebit) {
+        this.ebit = ebit;
+    }
+
+    public BigDecimal getEquity() {
+        return equity;
+    }
+
+    public void setEquity(BigDecimal equity) {
+        this.equity = equity;
+    }
+
+    public BigDecimal getTotalDebt() {
+        return totalDebt;
+    }
+
+    public void setTotalDebt(BigDecimal totalDebt) {
+        this.totalDebt = totalDebt;
+    }
+
+    public BigDecimal getCashEquivalents() {
+        return cashEquivalents;
+    }
+
+    public void setCashEquivalents(BigDecimal cashEquivalents) {
+        this.cashEquivalents = cashEquivalents;
+    }
+
+    public BigDecimal getSharesOutstanding() {
+        return sharesOutstanding;
+    }
+
+    public void setSharesOutstanding(BigDecimal sharesOutstanding) {
+        this.sharesOutstanding = sharesOutstanding;
+    }
+
+    public BigDecimal getMoneyGenerated() {
+        return moneyGenerated;
+    }
+
+    public void setMoneyGenerated(BigDecimal moneyGenerated) {
+        this.moneyGenerated = moneyGenerated;
+    }
+
+    public BigDecimal getCompanyValue() {
+        return companyValue;
+    }
+
+    public void setCompanyValue(BigDecimal companyValue) {
+        this.companyValue = companyValue;
+    }
+
+    public BigDecimal getNetProfit() {
+        return netProfit;
+    }
+
+    public void setNetProfit(BigDecimal netProfit) {
+        this.netProfit = netProfit;
+    }
 
     public BigDecimal getEvToEbitMax() {
         return evToEbitMax;

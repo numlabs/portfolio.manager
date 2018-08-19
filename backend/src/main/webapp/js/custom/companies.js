@@ -14,12 +14,12 @@ $(document).ready(function() {
 
     $.get("/portfoliomng/companies/detailed/" + result.exchange).done(function(data) {
     		var html = '';
-
             $('#companies-tbody').not(':first').not(':last').remove();
 
            	for(i=0; i<data.length; i++) {
             	html = html + addCompanyToTable(data[i]);
          	}
+
             $('#exchangeName').html("Companies at " + data[0].exchange.name);
           	$('#companies-tbody').append(html);
     	}).fail(function() {

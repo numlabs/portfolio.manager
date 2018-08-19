@@ -3,11 +3,9 @@
     <head>
         <meta charset="utf-8">
         <title>Portfolio Manager</title>
-        <base href="/">
-
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="portfoliomng/css/bootstrap.min.css" rel="stylesheet">
-        <link href="portfoliomng/css/dashboard.css" rel="stylesheet">
+        <link href="/portfoliomng/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/portfoliomng/css/dashboard.css" rel="stylesheet">
     </head>
 
     <body>
@@ -47,21 +45,23 @@
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
+                        <th scope="col" style="text-align: right;">Price</th>
+                        <th scope="col" style="text-align: right;">EV/EBIT(LP)</th>
                         <th scope="col" style="text-align: right;">EV/EBIT</th>
                         <th scope="col" style="text-align: right;">EV/EBIT(max)</th>
                         <th scope="col" style="text-align: right;">EV/EBIT(min)</th>
-
-                        <th scope="col" style="text-align: right;">EV/MG</th>
-                        <th scope="col" style="text-align: right;">EV/CV</th>
-                        <th scope="col" style="text-align: right;">Price</th>
-
                         <th scope="col" style="text-align: right;">P/E</th>
                         <th scope="col" style="text-align: right;">P/BV</th>
+
+                        <th scope="col" style="text-align: right;">EV/MG</th>
+                        <th scope="col" style="text-align: right;">EV/BV</th>
 
                         <th scope="col" style="text-align: right;">ROE</th>
                         <th scope="col" style="text-align: right;">Gross Margin</th>
                         <th scope="col" style="text-align: right;">EBIT Margin</th>
                         <th scope="col" style="text-align: right;">Net Profit Margin</th>
+                        <th scope="col">inv.com</th>
+                        <th scope="col">KAP</th>
                     </tr>
                 </thead>
                 <tbody id="companies-tbody"/>
@@ -69,10 +69,10 @@
 
         </div>
 
-        <script src="portfoliomng/js/jquery-3.2.1.js"></script>
-        <script src="portfoliomng/js/popper.min.js"></script>
-        <script src="portfoliomng/js/bootstrap.min.js"></script>
-        <script src="portfoliomng/js/search.js"></script>
-        <script src="portfoliomng/js/companies.js"></script>
+        <script src="/portfoliomng/js/jquery-3.2.1.js"></script>
+        <script src="/portfoliomng/js/popper.min.js"></script>
+        <script src="/portfoliomng/js/bootstrap.min.js"></script>
+        <script src="/portfoliomng/js/search.js"></script>
+        <script src="/portfoliomng/js/custom/companies.js"></script>
     </body>
 </html>
