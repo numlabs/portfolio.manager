@@ -100,6 +100,8 @@ function loadPeriodData(data){
     $('#r-earnings').val(period.balanceSheet.retainedEarnings);
 
     $('#revenue').val(period.incomeStatement.revenue);
+    $('#sales-abroad').val(period.incomeStatement.salesAbroad);
+    $('#sales-local').val(period.incomeStatement.salesLocal);
     $('#g-profit').val(period.incomeStatement.grossProfit);
     $('#g-a-expenses').val(period.incomeStatement.generalAdministrativeExpenses);
     $('#smd-expenses').val(period.incomeStatement.sellingMarketingDistributionExpenses);
@@ -122,6 +124,9 @@ function loadPeriodData(data){
     $('#debt-issued').val(period.cashFlowStatement.debtIssued);
     $('#debt-repaid').val(period.cashFlowStatement.debtPayments);
     $('#cash').val(period.cashFlowStatement.cash);
+    $('#higher-price').val(period.higherPrice);
+    $('#fair-price').val(period.fairPrice);
+    $('#lower-price').val(period.lowerPrice);
 }
 
 function addPeriod() {
@@ -132,6 +137,8 @@ function addPeriod() {
 	var shares = $('#shares-oustanding').val();
 
 	var revenue = $('#revenue').val();
+	var salesAbroad = $('#sales-abroad').val();
+	var salesLocal = $('#sales-local').val();
 	var grossProfit = $('#g-profit').val();
 	var operatingProfit = $('#ebit').val();
 	var netProfit = $('#n-profit').val();
@@ -154,6 +161,10 @@ function addPeriod() {
 	var description = $('#description').val();
 	var recalculate = $('#recalculate').is(':checked');
 
+	var higherPrice = $('#higher-price').val();
+	var fairPrice = $('#fair-price').val();
+	var lowerPrice = $('#lower-price').val();
+
 	if (tickerSymbol == '' || exchange == '0' || name == '' || earningsDate == '' || shares == ''
 	    || revenue == '' || grossProfit == '' || operatingProfit == '' || netProfit == ''
 	    || cash == '' || financingAtivitiesCash == '' || capitalExpenditures == '' || investingActivitiesCash == '' || operatingActivitiesCash == ''
@@ -167,6 +178,9 @@ function addPeriod() {
 			"name" : name,
 			"earningsDate" : earningsDate,
 			"sharesOutstanding" : shares,
+			"higherPrice": higherPrice,
+			"fairPrice": fairPrice,
+			"lowerPrice": lowerPrice,
             "cashFlowStatement": {
                 "operatingActivitiesCash": operatingActivitiesCash ,
                 "depAndAmrtExpenses": $('#dep-amort').val(),
@@ -197,6 +211,8 @@ function addPeriod() {
             },
             "incomeStatement": {
                 "revenue": revenue,
+                "salesAbroad" : salesAbroad,
+                "salesLocal" : salesLocal,
                 "grossProfit": grossProfit,
                 "sellingMarketingDistributionExpenses": $('#smd-expenses').val(),
                 "generalAdministrativeExpenses": $('#g-a-expenses').val(),
@@ -278,6 +294,8 @@ function resetFields() {
     $('#r-earnings').val('');
 
     $('#revenue').val('');
+    $('#sales-abroad').val('');
+    $('#sales-local').val('');
     $('#g-profit').val('');
     $('#g-a-expenses').val('');
     $('#smd-expenses').val('');
@@ -300,6 +318,9 @@ function resetFields() {
     $('#debt-issued').val('');
     $('#debt-repaid').val('');
     $('#cash').val('');
+    $('#higher-price').val('');
+    $('#fair-price').val('');
+    $('#lower-price').val('');
 }
 
 function searchPeriod() {

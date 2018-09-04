@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface PeriodService {
     Period getPeriodById(Long id);
+
     List<Period> findPeriodsOfCompany(Company company);
 
     void removeCompanyPeriods(Company company);
@@ -25,4 +26,8 @@ public interface PeriodService {
     List<Period> findPeriodsOfCompanyForYear(Company company, String year);
 
     void resetPeriodIndicators(Period period);
+
+    void addBankPeriod(Period period) throws PortfolioManagerException;
+
+    void updateIndicators(Company company);
 }

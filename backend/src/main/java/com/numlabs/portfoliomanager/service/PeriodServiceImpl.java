@@ -1,10 +1,8 @@
 package com.numlabs.portfoliomanager.service;
 
+import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.PortfolioManagerException;
-import com.numlabs.portfoliomanager.model.CashFlowStatement;
-import com.numlabs.portfoliomanager.model.Company;
-import com.numlabs.portfoliomanager.model.IncomeStatement;
-import com.numlabs.portfoliomanager.model.Period;
+import com.numlabs.portfoliomanager.model.*;
 import com.numlabs.portfoliomanager.repository.PeriodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,14 +26,51 @@ public class PeriodServiceImpl implements PeriodService {
     private CompanyService companyService;
 
     @Override
-    public List<Period> findPeriodsOfCompany(Company company) {
+    public void updateIndicators(Company company) {
+        if(!company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
+            setPeriodIndicators(findPeriodsOfCompany(company));
+        }
+        // TODO: update BANKs indicators
+    }
 
+    @Override
+    public List<Period> findPeriodsOfCompany(Company company) {
+        if(company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
+            return findBankPeriodsOfCompany(company);
+        } else {
+            return findPeriodsOfRegularCompany(company);
+        }
+    }
+
+    /*
+     * Should not be called directly, use #findPeriodsOfCompany() instead.
+     *
+     * @param company
+     * @return
+     */
+    private List<Period> findPeriodsOfRegularCompany(Company company) {
         List<Period> periods = this.periodRepository.findAllByCompany(company);
 
         for(Period period: periods) {
-            period.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(period.getId()));
-            period.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(period.getId()));
-            period.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(period.getId()));
+            period.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(period));
+            period.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(period));
+            period.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(period));
+        }
+
+        return  periods;
+    }
+
+    /*
+     * Should not be called directly, use #findPeriodsOfCompany() instead.
+     *
+     * @param company
+     * @return
+     */
+    private List<Period> findBankPeriodsOfCompany(Company company) {
+        List<Period> periods = this.periodRepository.findAllByCompany(company);
+
+        for(Period period: periods) {
+            period.setBankStatement(this.periodRepository.findBankStatementOfPeriod(period));
         }
 
         return  periods;
@@ -46,13 +81,28 @@ public class PeriodServiceImpl implements PeriodService {
         List<Period> periods = findPeriodsOfCompany(company);
 
         for(Period period: periods) {
-            pricingPeriodService.removeOfPeriod(period);
+            pricingPeriodService.remove(period);
 
             this.periodRepository.removeBalanceSheetOfPeriod(period);
             this.periodRepository.removeIncomeStatementOfPeriod(period);
             this.periodRepository.removeCashFlowStatementOfPeriod(period);
+            this.periodRepository.removeBankStatementOfPeriod(period);
             this.periodRepository.remove(period);
         }
+    }
+
+    @Override
+    public void addBankPeriod(Period period) throws PortfolioManagerException {
+        Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());
+
+        if(company == null) {
+            return;
+        }
+
+        period.getBankStatement().setPeriod(period);
+        this.periodRepository.persist(period);
+        this.periodRepository.persist(period.getBankStatement());
+        companyService.calculateIndicators(period.getCompany());
     }
 
     @Override
@@ -81,9 +131,9 @@ public class PeriodServiceImpl implements PeriodService {
                     throw new PortfolioManagerException("Required previous periods are mising!");
                 }
 
-                substractPeriod(period, q3);
-                substractPeriod(period, q2);
-                substractPeriod(period, q1);
+                subtractPeriod(period, q3);
+                subtractPeriod(period, q2);
+                subtractPeriod(period, q1);
             } else if (period.getName().endsWith("3")) {
                 Period q2 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "2");
                 Period q1 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "1");
@@ -92,8 +142,8 @@ public class PeriodServiceImpl implements PeriodService {
                     throw new PortfolioManagerException("Required previous periods are mising!");
                 }
 
-                substractPeriod(period, q1);
-                substractPeriod(period, q2);
+                subtractPeriod(period, q1);
+                subtractPeriod(period, q2);
             } else if (period.getName().endsWith("2")) {
                 Period q1 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "1");
 
@@ -101,7 +151,7 @@ public class PeriodServiceImpl implements PeriodService {
                     throw new PortfolioManagerException("Required previous periods are mising!");
                 }
 
-                substractPeriod(period, q1);
+                subtractPeriod(period, q1);
             }
         }
 
@@ -113,7 +163,7 @@ public class PeriodServiceImpl implements PeriodService {
         setPeriodIndicators(findPeriodsOfCompany(company));
     }
 
-    private void substractPeriod(Period period, Period persisted) {
+    private void subtractPeriod(Period period, Period persisted) {
         IncomeStatement isIncorect = period.getIncomeStatement();
         CashFlowStatement cfIncorect = period.getCashFlowStatement();
         CashFlowStatement cfPersisted = persisted.getCashFlowStatement();
@@ -150,9 +200,10 @@ public class PeriodServiceImpl implements PeriodService {
             return period;
         }
 
-        period.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(period.getId()));
-        period.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(period.getId()));
-        period.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(period.getId()));
+        period.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(period));
+        period.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(period));
+        period.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(period));
+        period.setBankStatement(this.periodRepository.findBankStatementOfPeriod(period));
 
         return period;
     }
@@ -169,26 +220,49 @@ public class PeriodServiceImpl implements PeriodService {
 
             setPeriodIndicators(cPeriods);
         }
-
-        System.out.println(periods.size());
     }
 
     private void setPeriodIndicators(List<Period> periods) {
+        if(periods == null || periods.isEmpty() ) {
+            return;
+        }
+
+        boolean isBank = periods.get(0).getCompany().getIndustrySector().getCode().equals(Constants.BANK_CODE);
+
         BigDecimal hundred = new BigDecimal(100);
         List<Period> orderedPeriods = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
 
         for(Period p: orderedPeriods) {
-            p.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(p.getId()));
-            p.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(p.getId()));
-            p.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(p.getId()));
+            if(isBank) {
+                p.setBankStatement(this.periodRepository.findBankStatementOfPeriod(p));
+            } else {
+                p.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(p));
+                p.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(p));
+                p.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(p));
+            }
         }
-
+        try {
+        // First period in the list is freshest(last announced) historically
         for(int i=0; i< orderedPeriods.size(); i++) {
             Period p = orderedPeriods.get(i);
+
+            if(isBank && orderedPeriods.size() - i > 3) {
+                BankStatement bs = p.getBankStatement();
+                BigDecimal netIncome = bs.getNetIncome().add(orderedPeriods.get(i+1).getBankStatement().getNetIncome()).add(orderedPeriods.get(i+2).getBankStatement().getNetIncome()).add(orderedPeriods.get(i+3).getBankStatement().getNetIncome());
+
+                p.setRoe(netIncome.divide(p.getBankStatement().getEquity(),4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                p.setMoneyGenerated(netIncome);
+
+                this.periodRepository.update(p);
+                continue;
+            } else if(isBank) {
+                continue;
+            }
 
             IncomeStatement is = p.getIncomeStatement();
             CashFlowStatement cf = p.getCashFlowStatement();
 
+            // calculate quarterly performance
             p.setGrossMargin(is.getGrossProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
             p.setEbitMargin(is.getOperatingProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
             p.setNetProfitMargin(is.getNetProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
@@ -204,11 +278,15 @@ public class PeriodServiceImpl implements PeriodService {
                 p.setGrossMarginTTM(grossProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                 p.setEbitMarginTTM(ebit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                 p.setNetProfitMarginTTM(netProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-                p.setRoe(netProfit.divide(p.getBalanceSheet().getEquity(),4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                p.setRoe(netProfit.divide(p.getBalanceSheet().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+
                 p.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex));
                 p.setCompanyValue(p.getBalanceSheet().getEquity().subtract(p.getBalanceSheet().getIntangibleAssets()));
             }
             this.periodRepository.update(p);
+        }
+        }catch (NullPointerException np) {
+            np.printStackTrace();
         }
 
         companyService.calculateIndicators(periods.get(0).getCompany());

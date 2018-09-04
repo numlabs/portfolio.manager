@@ -1,10 +1,12 @@
 package com.numlabs.portfoliomanager.model;
 
+import com.numlabs.portfoliomanager.Constants;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -28,6 +30,9 @@ public class Company implements Serializable {
 
     @Column(name="price")
     private BigDecimal price;
+
+    @Column(name="price_date")
+    private Date priceDate;
 
     @Column(name="stock_url")
     private String stockUrl;
@@ -114,6 +119,22 @@ public class Company implements Serializable {
     private List<Period> periods;
 
     public Company() {}
+
+    public Date getPriceDate() {
+        return priceDate;
+    }
+
+    public void setPriceDate(Date priceDate) {
+        this.priceDate = priceDate;
+    }
+
+    /**
+     * Used for error messages when handling a company.
+     * @param description
+     */
+    public Company(String description) {
+        this.description = description;
+    }
 
     public String getKapUrl() {
         return kapUrl;
@@ -373,5 +394,14 @@ public class Company implements Serializable {
 
     public void setPb(BigDecimal pb) {
         this.pb = pb;
+    }
+
+    @Transient
+    public boolean isBank() {
+        if(this.industrySector != null && this.industrySector.getCode().equals(Constants.BANK_CODE)) {
+            return true;
+        }
+
+        return false;
     }
 }

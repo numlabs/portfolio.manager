@@ -40,6 +40,9 @@ public class Period implements Serializable {
     @Transient
     private CashFlowStatement cashFlowStatement;
 
+    @Transient
+    private BankStatement bankStatement;
+
     @Column(name = "gross_margin")
     private BigDecimal grossMargin;
 
@@ -70,11 +73,52 @@ public class Period implements Serializable {
     @Column(name = "company_value")
     private BigDecimal companyValue;  // Company Value = Equity - Intangible Assets ; TODO: to be tuned
 
+    @Column(name = "higher_price")
+    private BigDecimal higherPrice;
+
+    @Column(name = "fair_price")
+    private BigDecimal fairPrice;
+
+    @Column(name = "lower_price")
+    private BigDecimal lowerPrice;
+
     public Period() {}
+
+    public BigDecimal getHigherPrice() {
+        return higherPrice;
+    }
+
+    public void setHigherPrice(BigDecimal higherPrice) {
+        this.higherPrice = higherPrice;
+    }
+
+    public BigDecimal getFairPrice() {
+        return fairPrice;
+    }
+
+    public void setFairPrice(BigDecimal fairPrice) {
+        this.fairPrice = fairPrice;
+    }
+
+    public BigDecimal getLowerPrice() {
+        return lowerPrice;
+    }
+
+    public void setLowerPrice(BigDecimal lowerPrice) {
+        this.lowerPrice = lowerPrice;
+    }
 
     public Period(Company com, String name) {
         this.company = com;
         this.name = name;
+    }
+
+    public BankStatement getBankStatement() {
+        return bankStatement;
+    }
+
+    public void setBankStatement(BankStatement bankStatement) {
+        this.bankStatement = bankStatement;
     }
 
     public BigDecimal getDebtToNetProfitMargin() {

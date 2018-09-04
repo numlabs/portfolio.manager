@@ -67,19 +67,64 @@ public class PeriodRepository extends PortfolioManagerRepository<Period> {
         this.entityManager.persist(entity);
     }
 
-    public BalanceSheet findBalanceSheetByPeriodId(Long id) {
-        Assert.notNull(id, Constants.ID_MUST_NOT_BE_NULL);
-        return this.entityManager.find(BalanceSheet.class, id);
+    public BalanceSheet findBalanceSheetByPeriodId(Period period) {
+        Assert.notNull(period, Constants.ID_MUST_NOT_BE_NULL);
+
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<BalanceSheet> query = builder.createQuery(BalanceSheet.class);
+        Root<BalanceSheet> root = query.from(BalanceSheet.class);
+        query.where(builder.equal(root.get("period"), period));
+
+        try {
+            return entityManager.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
-    public IncomeStatement findIncomeStatementByPeriodId(Long id) {
-        Assert.notNull(id, Constants.ID_MUST_NOT_BE_NULL);
-        return this.entityManager.find(IncomeStatement.class, id);
+    public IncomeStatement findIncomeStatementByPeriodId(Period period) {
+        Assert.notNull(period, Constants.ID_MUST_NOT_BE_NULL);
+
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<IncomeStatement> query = builder.createQuery(IncomeStatement.class);
+        Root<IncomeStatement> root = query.from(IncomeStatement.class);
+        query.where(builder.equal(root.get("period"), period));
+
+        try {
+            return entityManager.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
-    public CashFlowStatement findCashFlowStatementByPeriodId(Long id) {
-        Assert.notNull(id, Constants.ID_MUST_NOT_BE_NULL);
-        return this.entityManager.find(CashFlowStatement.class, id);
+    public CashFlowStatement findCashFlowStatementByPeriodId(Period period) {
+        Assert.notNull(period, Constants.ID_MUST_NOT_BE_NULL);
+
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<CashFlowStatement> query = builder.createQuery(CashFlowStatement.class);
+        Root<CashFlowStatement> root = query.from(CashFlowStatement.class);
+        query.where(builder.equal(root.get("period"), period));
+
+        try {
+            return entityManager.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public BankStatement findBankStatementOfPeriod(Period period) {
+        Assert.notNull(period, Constants.ID_MUST_NOT_BE_NULL);
+
+        CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<BankStatement> query = builder.createQuery(BankStatement.class);
+        Root<BankStatement> root = query.from(BankStatement.class);
+        query.where(builder.equal(root.get("period"), period));
+
+        try {
+            return entityManager.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     public void update(BalanceSheet element){
@@ -138,4 +183,18 @@ public class PeriodRepository extends PortfolioManagerRepository<Period> {
         criteriaQuery.where(builder.equal(root.get("period"), period));
         this.entityManager.createQuery(criteriaQuery).executeUpdate();
     }
+
+    public void removeBankStatementOfPeriod(Period period) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaDelete<BankStatement> criteriaDeleteQuery = builder.createCriteriaDelete(BankStatement.class);
+        Root<BankStatement> root = criteriaDeleteQuery.from(BankStatement.class);
+
+        criteriaDeleteQuery.where(builder.equal(root.get("period"), period));
+        this.entityManager.createQuery(criteriaDeleteQuery).executeUpdate();
+    }
+
+    public void persist(BankStatement entity) {
+        this.entityManager.persist(entity);
+    }
+
 }

@@ -31,8 +31,8 @@ function addCompanyToTable(data) {
 	var tableRow = "<tr id='" + data.tickerSymbol + "'>";
 
 	tableRow += "<td align='left' style='color:red;'><a href='/portfoliomng/company-board.html?id=" +
-	            data.id + "'>" +  data.tickerSymbol + " - " + data.name + "</a></td><td align='right'>";
-    tableRow += formatValue(data.price) + "</td> <td align='right'>";
+	            data.id + "&companySectorCode=" + data.industrySector.code + "'>" +  data.tickerSymbol + " - " + data.name + "</a></td><td align='right'>";
+    tableRow += "<b>" + formatValue(data.price) + "</b> (" + data.priceDate.substring(8,10) + "/" + data.priceDate.substring(5,7)  + ")</td> <td align='right'>";
 	tableRow += formatValue(data.evToEbitLastPeriod) + "</td> <td align='right'>";
 	tableRow += formatValue(data.evToEbit) + "</td> <td align='right'>";
     tableRow += formatValue(data.evToEbitMax) + "</td> <td align='right'>";

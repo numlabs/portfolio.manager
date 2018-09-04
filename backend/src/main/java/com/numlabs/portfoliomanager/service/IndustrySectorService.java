@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface IndustrySectorService {
     public List<IndustrySector> findAll();
+
+    IndustrySector  getById(Long id);
 }

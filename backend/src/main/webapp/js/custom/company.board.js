@@ -10,11 +10,16 @@ var parseQueryString = function(url) {
 
 $(document).ready(function() {
 	var urlToParse = location.search;
-	var result = parseQueryString(urlToParse);
+	var urlParameters = parseQueryString(urlToParse);
 
-	$.get("/portfoliomng/company/board/" + result.id).done(function(data) {
+	$.get("/portfoliomng/company/board/" + urlParameters.id).done(function(data) {
 		var tableData = "";
         var periods = data.periods;
+
+        if(periods.length == 0) {
+            $('#period-table-headers').append("No Periods registered.");
+            return;
+        }
 
 		tableData += "<th style='text-align: left;' >" + data.tickerSymbol + "</th>";
 
@@ -25,13 +30,86 @@ $(document).ready(function() {
 		$('#period-table-headers').append(tableData);
 		$('#period-table-body').not(':first').not(':last').remove();
 
-		tableData = getPeriodData(periods);
+        if(urlParameters.companySectorCode === 'BANK') {
+            tableData = getBankPeriodData(periods);
+        } else {
+		    tableData = getPeriodData(periods);
+		}
 
 		$('#period-table-body').append(tableData);
 	}).fail(function() {
 		alert("The process could not be completed.");
 	});
 });
+
+function getBankPeriodData(data) {
+    var tableRow = "";
+
+	tableRow += "<tr><td>Assets</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.assets) + "</td>";
+    }
+
+    tableRow += "</tr><td>Liabilities</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.liabilities) + "</td>";
+    }
+
+    tableRow += "</tr><td><b>Equity</b></td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'><b>" + formatValue(data[i].bankStatement.equity) + "</b></td>";
+    }
+
+    tableRow += "</tr><td>Loans</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.loans) + "</td>";
+    }
+
+    tableRow += "</tr><td>Deposits</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.deposits) + "</td>";
+    }
+
+    tableRow += "</tr><td>Intangible Assets</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.intangibleAssets) + "</td>";
+    }
+
+    tableRow += "</tr><td>Dividends</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.dividends) + "</td>";
+    }
+
+    tableRow += "</tr><td>Interest Income</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.interestIncome) + "</td>";
+    }
+
+    tableRow += "</tr><td>Interest Expenses</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].bankStatement.interestExpenses) + "</td>";
+    }
+
+    tableRow += "</tr><td><b>Net Income</b></td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'><b>" + formatValue(data[i].bankStatement.netIncome) + "</b></td>";
+    }
+
+	tableRow += "</tr>";
+
+	return tableRow;
+
+}
 
 function getPeriodData(data) {
     var tableRow = "";
@@ -141,6 +219,18 @@ function getPeriodData(data) {
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.revenue) + "</b></td>";
 	}
+
+	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Abroad (Yearly)</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesAbroad) + "</td>";
+    }
+
+    tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Local Market (Yearly)</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesLocal) + "</td>";
+    }
 
 	tableRow += "</tr><td><b>Gross Profit</b></td>";
 

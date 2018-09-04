@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;
@@ -107,20 +104,14 @@ public class CompanyUtil {
                     String href = child.childNode(0).attr("href");
 
                     if (title == null || title.isEmpty()) {
-                        TextNode t = (TextNode) child.childNode(1).childNode(0);
-                        title = t.getWholeText();
                         href = child.childNode(1).attr("href");
-
-                    } else {
-                        TextNode t = (TextNode) child.childNode(0).childNode(0);
-                        href = child.childNode(0).attr("href");
-                        title = t.getWholeText();
                     }
 
                     Company com = companiesByUrl.get("https://www.investing.com" + href);
 
                     if (com != null) {
                         com.setPrice(new BigDecimal(price.get(0).text().trim()));
+                        com.setPriceDate(new Date());
                         companyService.update(com);
                     }
                 }

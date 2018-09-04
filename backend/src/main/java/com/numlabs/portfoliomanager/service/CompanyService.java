@@ -28,4 +28,6 @@ public interface CompanyService {
     void calculateIndicators(Company company);
 
     void reset(Company company);
+
+    void update(Company updCompany, boolean removePeriods);
 }

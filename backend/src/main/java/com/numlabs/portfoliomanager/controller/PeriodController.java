@@ -65,6 +65,49 @@ public class PeriodController {
         return new ResponseEntity<>(period, HttpStatus.OK);
     }
 
+    @PostMapping("/period/bank/add")
+    public ResponseEntity<String> addBankPeriod(@RequestBody Period period) {
+        Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());
+
+        if(company == null) {
+            return new ResponseEntity<String>("A company with the specified " + period.getCompany().getTickerSymbol() +
+                    " ticker symbol and " + period.getCompany().getExchange().getId() + "  exchange id does not exist.",
+                    HttpStatus.EXPECTATION_FAILED);
+        }
+
+        period.setCompany(company);
+
+        Period existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company, period.getName());
+
+        if(existingPeriod != null) {
+            return new ResponseEntity<String>("Period already exist.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        if(!period.getName().matches("20[1-9]{2}_Q[1-4]{1}")) {
+            return new ResponseEntity<String>("Name format is not in correct format.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        int periodNumber = Integer.parseInt(period.getName().substring(period.getName().length()-1, period.getName().length()));
+
+        if(periodNumber != 1) {
+            existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company,
+                    period.getName().substring(0, period.getName().length() - 1) + (periodNumber - 1));
+
+            if(existingPeriod == null) {
+                return new ResponseEntity<String>("Required previous period is missing.", HttpStatus.EXPECTATION_FAILED);
+            }
+        }
+
+        try {
+            periodService.addBankPeriod(period);
+        } catch (PortfolioManagerException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>("There was an issue at the service level.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        return new ResponseEntity<>("Period added successfully.", HttpStatus.OK);
+    }
+
     @PostMapping("/period/add")
     public ResponseEntity<String> addPeriod(@RequestBody Period period) {
         Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());

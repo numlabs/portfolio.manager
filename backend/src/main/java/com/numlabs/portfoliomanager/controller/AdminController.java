@@ -17,6 +17,8 @@ public class AdminController {
     @Autowired
     private CompanyUtil companyUtil;
 
+
+
     @RequestMapping("admin/period/margins/calculate")
     public ResponseEntity<String> calculatePeriodMargins() {
         periodService.calculatePeriodMargins();
@@ -28,4 +30,5 @@ public class AdminController {
         companyUtil.updateCompanyPricesOfBIST();
         return new ResponseEntity<>("Successful.", HttpStatus.OK);
     }
+
 }

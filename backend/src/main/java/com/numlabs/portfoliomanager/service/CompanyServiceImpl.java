@@ -1,5 +1,6 @@
 package com.numlabs.portfoliomanager.service;
 
+import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.model.Exchange;
 import com.numlabs.portfoliomanager.model.Period;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<Company> findAllCompanies() {
-        List<Company> companies = new ArrayList<>();
-        companyRepository.findAll().forEach(e->companies.add(e));
-        return companies;
+        return companyRepository.findAll();
     }
 
     @Override
@@ -57,8 +55,9 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void update(Company com) {
-        companyRepository.update(com);
+    public void update(Company company) {
+        companyRepository.update(company);
+        periodService.updateIndicators(company);
     }
 
     public void persist(Company com) {
@@ -91,6 +90,19 @@ public class CompanyServiceImpl implements CompanyService {
         }
 
         List<Period> ordered = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
+
+        if(company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
+            BigDecimal netProfit = ordered.get(0).getBankStatement().getNetIncome().add(ordered.get(1).getBankStatement().getNetIncome()).
+                    add(ordered.get(2).getBankStatement().getNetIncome()).add(ordered.get(3).getBankStatement().getNetIncome());
+
+            company.setNetProfit(netProfit);
+            company.setEquity(periods.get(0).getBankStatement().getEquity());
+            company.setSharesOutstanding(periods.get(0).getSharesOutstanding());
+            company.setBookValue(company.getEquity().subtract(periods.get(0).getBankStatement().getIntangibleAssets()));
+
+            return;
+        }
+
         BigDecimal ebit = ordered.get(0).getIncomeStatement().getOperatingProfit().add(ordered.get(1).getIncomeStatement().getOperatingProfit())
                 .add(ordered.get(2).getIncomeStatement().getOperatingProfit()).add(ordered.get(3).getIncomeStatement().getOperatingProfit());
         BigDecimal netProfit = ordered.get(0).getIncomeStatement().getNetProfit().add(ordered.get(1).getIncomeStatement().getNetProfit())
@@ -135,5 +147,11 @@ public class CompanyServiceImpl implements CompanyService {
         company.setEquity(null);
 
         this.companyRepository.update(company);
+    }
+
+    @Override
+    public void update(Company updCompany, boolean removePeriods) {
+        periodService.removeCompanyPeriods(updCompany);
+        this.update(updCompany);
     }
 }

@@ -24,6 +24,12 @@ public class IncomeStatement implements Serializable {
     @Column(name = "revenue")
     private BigDecimal revenue;
 
+    @Column(name = "sales_abroad")
+    private BigDecimal salesAbroad;
+
+    @Column(name = "sales_local")
+    private BigDecimal salesLocal;
+
     @Column(name = "gross_profit")
     private BigDecimal grossProfit;
 
@@ -75,6 +81,24 @@ public class IncomeStatement implements Serializable {
         this.financialExpenses = new BigDecimal(0);
         this.taxExpenses = new BigDecimal(0);
         this.netProfit = new BigDecimal(0);
+        this.salesAbroad = new BigDecimal(0);
+        this.salesLocal = new BigDecimal(0);
+    }
+
+    public BigDecimal getSalesAbroad() {
+        return salesAbroad;
+    }
+
+    public void setSalesAbroad(BigDecimal salesAbroad) {
+        this.salesAbroad = salesAbroad;
+    }
+
+    public BigDecimal getSalesLocal() {
+        return salesLocal;
+    }
+
+    public void setSalesLocal(BigDecimal salesLocal) {
+        this.salesLocal = salesLocal;
     }
 
     public Long getId() {

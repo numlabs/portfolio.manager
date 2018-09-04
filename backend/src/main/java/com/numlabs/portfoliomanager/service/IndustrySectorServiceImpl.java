@@ -17,4 +17,9 @@ public class IndustrySectorServiceImpl implements IndustrySectorService {
     public List<IndustrySector> findAll() {
         return industrySectorRepository.findAll();
     }
+
+    @Override
+    public IndustrySector getById(Long id) {
+        return industrySectorRepository.findById(id);
+    }
 }

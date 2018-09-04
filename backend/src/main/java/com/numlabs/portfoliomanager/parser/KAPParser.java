@@ -110,7 +110,9 @@ public class KAPParser {
                     } else if(currentElementKey.trim().startsWith("Total assets")) {
                         bs.setTotalAssets(readPeriodValue(cellIter, multiplier,3));
                     } else if(currentElementKey.trim().startsWith("Current Borrowings")) {
-                        bs.setShortTermDebt(readPeriodValue(cellIter, multiplier,3));
+                        bs.setShortTermDebt(bs.getShortTermDebt().add(readPeriodValue(cellIter, multiplier,3)));
+                    } else if(currentElementKey.trim().startsWith("Current Portion of Non-current Borrowings")) {
+                        bs.setShortTermDebt(bs.getShortTermDebt().add(readPeriodValue(cellIter, multiplier,3)));
                     } else if(currentElementKey.trim().startsWith("Trade Payables")) {
                         BigDecimal temp = readPeriodValue(cellIter, multiplier,3);
                         bs.setTradePayables(bs.getTradePayables().add(temp));
