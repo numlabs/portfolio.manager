@@ -1,5 +1,6 @@
 package com.numlabs.portfoliomanager.util;
 
+import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.service.CompanyService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,9 +15,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Component
 public class IsYatirimParser {
+
+    @Autowired
+    public CompanyService companyService;
+
     /**
      * DOAS - XI_29
      * AKSA - XI_29
@@ -172,4 +179,81 @@ public class IsYatirimParser {
                 "&period4=3" +
                 "&_=" + new Date().getTime();
     }
+
+    public String updateBISTPrices() throws IOException {
+        org.jsoup.nodes.Document doc = Jsoup.connect("https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/default.aspx").ignoreContentType(true).get();
+        String result = doc.getElementById("allStockTable").text();
+        int counter = 0;
+        int allCompaniesDefined = 0;
+
+        if(result != null && !result.isEmpty()) {
+            List<Company> companies = companyService.findAllCompanies("BIST");
+
+            if(companies == null || companies.isEmpty()) {
+                return "No companies found";
+            }
+
+            Map<String, Company> pairs = companies.stream().collect(Collectors.toMap(Company::getTickerSymbol, company -> company));
+            String[] elements = result.split(" ");
+            allCompaniesDefined = companies.size();
+
+            for(int i=0; i<elements.length; i++) {
+                Company temp = pairs.get(elements[i].trim());
+
+                if(temp != null) {
+                    temp.setPrice(new BigDecimal(elements[i+2].replace(',', '.')));
+                    temp.setPriceDate(new Date());
+                    companyService.update(temp);
+                    counter++;
+                }
+            }
+        }
+        return "Companies defined " + allCompaniesDefined + ", updated " + counter;
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

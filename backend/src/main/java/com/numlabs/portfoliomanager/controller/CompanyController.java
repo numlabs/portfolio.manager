@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,8 @@ public class CompanyController {
         if(company != null) {
             return new ResponseEntity<> (String.format("The company with the %s already exist.", newCompany.getTickerSymbol()), HttpStatus.CONFLICT);
         }
-
+        newCompany.setId(null);
+        newCompany.setPriceDate(new Date());
         companyService.persist(newCompany);
         return new ResponseEntity<> ("Added.", HttpStatus.OK);
     }
@@ -56,10 +58,10 @@ public class CompanyController {
             return new ResponseEntity<> (String.format("The company with the %s does not exist.", updCompany.getTickerSymbol()), HttpStatus.EXPECTATION_FAILED);
         }
 
-        IndustrySector sector = industrySectorService.getById(updCompany.getIndustrySector().getId());
+        IndustrySector newSector = industrySectorService.getById(updCompany.getIndustrySector().getId());
+        updCompany.setIndustrySector(newSector);
 
-        if((!company.isBank() && sector.getCode().equals(Constants.BANK_CODE)) || (company.isBank() && !sector.getCode().equals(Constants.BANK_CODE))) {
-            periodService.removeCompanyPeriods(company);
+        if((!company.isBank() && newSector.getCode().equals(Constants.BANK_CODE)) || (company.isBank() && !newSector.getCode().equals(Constants.BANK_CODE))) {
             companyService.update(updCompany, true);
         } else {
             companyService.update(updCompany, false);
@@ -86,7 +88,20 @@ public class CompanyController {
         if(company == null) {
             return new ResponseEntity<> (String.format("The company with the %s does not exist.", id), HttpStatus.OK);
         }
+
         companyService.reset(company);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @RequestMapping("company/remove/periods/{id}")
+    public ResponseEntity<String> removePeriodsByCompanyId(@PathVariable Long id) {
+        Company company = companyService.findCompany(id);
+
+        if(company == null) {
+            return new ResponseEntity<> (String.format("The company with the %s does not exist.", id), HttpStatus.OK);
+        }
+
+        periodService.removeCompanyPeriods(company);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
@@ -125,7 +140,21 @@ public class CompanyController {
         List<Company> selectedBanks = new ArrayList<>();
 
         for(Company company: companies) {
-            if(company.getNetProfit() == null) {
+            if(company.getSharesOutstanding().equals(BigDecimal.valueOf(0))) {
+                if(company.isBank()) {
+                    selectedBanks.add(company);
+                } else {
+                    selected.add(company);
+                }
+                company.setEvToEbit(new BigDecimal(0));
+                company.setEvToMg(new BigDecimal(0));
+                company.setEvToCv(new BigDecimal(0));
+                company.setEvToEbitLastPeriod(new BigDecimal(0));
+                company.setPe(new BigDecimal(0));
+                continue;
+            }
+
+            if(company.getNetProfit() == null || company.getNetProfit().equals(0)) {
                 companyService.calculateIndicators(company);
 
                 if(company.getNetProfit() == null) {

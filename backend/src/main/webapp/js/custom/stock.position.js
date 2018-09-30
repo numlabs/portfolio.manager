@@ -13,8 +13,6 @@ $(document).ready(function() {
 	var urlParams = parseQueryString(urlToParse);
 
     $("#delete-btn").hide();
-    $("#reset-company-btn").hide();
-    $("#rm-com-periods-btn").hide();
 
 	$.get("/portfoliomng/exchange/all", function(data, status) {
         if (status == 'success') {
@@ -25,25 +23,26 @@ $(document).ready(function() {
             }
 
             $('#exchange').append(exchanges);
-            $('#search-exchange').append(exchanges);
          } else {
             alert("No exchanges found registered!");
         }
     });
 
-    $.get("/portfoliomng/industrysector/all", function(data, status) {
-        if (status == 'success') {
-            var sectors = "";
+    $.get("/portfoliomng/position/all", function(data, status) {
+            if (status == 'success') {
+                var positons = "";
 
-            for (var i = 0; i < data.length; i++) {
-                sectors += '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+                for (var i = 0; i < data.length; i++) {
+                    exchanges += '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+                }
+
+                $('#positions').append(exchanges);
+             } else {
+                alert("No trades/positions found registered!");
             }
+        });
 
-            $('#industry-sector').append(sectors);
-        } else {
-            alert("No industry sectors found registered!");
-        }
-    });
+
 
 	if(urlParams.operation == 'add') {
 	    $('#form-title').html("Add Company");
@@ -79,8 +78,8 @@ function setFields(company) {
    $('#ticker-symbol').val(company.tickerSymbol);
    $('#industry-sector').val(company.industrySector.id);
    $('#price').val(company.price);
-   $('#ev-ebit-min').val(company.evToEbitMin);
-   $('#ev-ebit-max').val(company.evToEbitMax);
+   $('#ev-ebit-min').val(company.evEbitMin);
+   $('#ev-ebit-max').val(company.evEbitMax);
    $('#stock-url').val(company.stockUrl);
    $('#exchange').val(company.exchange.id);
    $('#id').val(company.id);
@@ -104,7 +103,7 @@ function resetFields() {
    $('#website').val('');
 }
 
-function addCompany() {
+function submitPosition() {
     var name = $('#name').val();
     var tickerSymbol = $('#ticker-symbol').val();
     var price = $('#price').val();
@@ -165,66 +164,14 @@ function addCompany() {
 	}
 }
 
-function removeCompany() {
-    $.get("/portfoliomng/company/remove/" + $('#id').val(), function(data, status) {
+function removePosition() {
+    $.get("/portfoliomng/position/remove/" + $('#id').val(), function(data, status) {
        if (status == 'success') {
            alert("The operation completed successfully.");
            $("#delete-btn").hide();
-           $("#submit-btn").html("Add Company");
-           $("#rm-com-periods-btn").hide();
+           $("#submit-btn").html("Add Position");
        }
    }).fail(function(data, status) {
-        alert("The company could not be removed, status: " + status);
+        alert("The position info could not be removed, status: " + status);
    });
-}
-
-function searchCompany() {
-    var tickerSymbol = $('#company-search').val();
-    var exchange = $('#search-exchange').val();
-
-    if(tickerSymbol.trim() == '' || exchange == 0)  {
-        alert("Please fill required ticket symbol and exchange fields. ");
-    } else {
-        resetFields();
-
-        $("#delete-btn").hide();
-        $("#reset-company-btn").hide();
-        $("#submit-btn").html("Add Company");
-        $('#mode').val("add");
-
-        $.get("/portfoliomng/company/search/" + tickerSymbol + "." + exchange, function(data, status) {
-            if (status == 'success') {
-                if(data.name != null && data.name != undefined) {
-                    setFields(data);
-                    $("#delete-btn").show();
-                    $("#reset-company-btn").show();
-                    $("#rm-com-periods-btn").show();
-                    $("#submit-btn").html("Update");
-                    $('#mode').val("edit");
-                }
-            }
-        }).fail(function(data, status) {
-            alert(data.responseJSON.description);
-        });
-    }
-}
-
-function resetCompany() {
-    $.get("/portfoliomng/company/reset/" + $('#id').val(), function(data, status) {
-       if (status == 'success') {
-           alert("The operation completed successfully.");
-       }
-    }).fail(function(data, status) {
-        alert("Reaset failed, status: " + status);
-    });
-}
-
-function removeCompanyPeriods() {
-    $.get("/company/remove/periods/" + $('#id').val(), function(data, status) {
-       if (status == 'success') {
-           alert("Operation completed successfully.");
-       }
-    }).fail(function(data, status) {
-        alert("Operation failed, status: " + status);
-    });
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class PeriodServiceImpl implements PeriodService {
 
     @Override
     public List<Period> findPeriodsOfCompany(Company company) {
-        if(company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
+        if(company.isBank()) {
             return findBankPeriodsOfCompany(company);
         } else {
             return findPeriodsOfRegularCompany(company);
@@ -81,13 +82,7 @@ public class PeriodServiceImpl implements PeriodService {
         List<Period> periods = findPeriodsOfCompany(company);
 
         for(Period period: periods) {
-            pricingPeriodService.remove(period);
-
-            this.periodRepository.removeBalanceSheetOfPeriod(period);
-            this.periodRepository.removeIncomeStatementOfPeriod(period);
-            this.periodRepository.removeCashFlowStatementOfPeriod(period);
-            this.periodRepository.removeBankStatementOfPeriod(period);
-            this.periodRepository.remove(period);
+            removePeriod(period);
         }
     }
 
@@ -115,9 +110,8 @@ public class PeriodServiceImpl implements PeriodService {
 
         period.setCompany(company);
 
-        if(period.getId() != null && period.getId().equals(Long.valueOf(0))) {
-            period.setId(null);
-            period.getBalanceSheet().setTotalDebt(period.getBalanceSheet().getShortTermDebt().add(period.getBalanceSheet().getLongTermDebt()));
+        if(period.getId() != null) {
+            period.getBalanceSheet().setTotalDebt(period.getBalanceSheet().getShortTermDebt().add(period.getBalanceSheet().getLongTermDebt()).add(period.getBalanceSheet().getCurrentPortionOfLongTermDebt()));
             period.getBalanceSheet().setPeriod(period);
             period.getCashFlowStatement().setPeriod(period);
             period.getIncomeStatement().setPeriod(period);
@@ -128,33 +122,40 @@ public class PeriodServiceImpl implements PeriodService {
                 Period q1 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "1");
 
                 if (q1 == null || q2 == null || q3 == null) {
-                    throw new PortfolioManagerException("Required previous periods are mising!");
+                    throw new PortfolioManagerException("Required previous periods are missing!");
                 }
 
-                subtractPeriod(period, q3);
-                subtractPeriod(period, q2);
-                subtractPeriod(period, q1);
+                if(period.getId().equals(Long.valueOf(0))) {
+                    subtractPeriod(period, q3);
+                    subtractPeriod(period, q2);
+                    subtractPeriod(period, q1);
+                }
             } else if (period.getName().endsWith("3")) {
                 Period q2 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "2");
                 Period q1 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "1");
 
                 if (q1 == null || q2 == null) {
-                    throw new PortfolioManagerException("Required previous periods are mising!");
+                    throw new PortfolioManagerException("Required previous periods are missing!");
                 }
 
-                subtractPeriod(period, q1);
-                subtractPeriod(period, q2);
+                if(period.getId().equals(Long.valueOf(0))) {
+                    subtractPeriod(period, q1);
+                    subtractPeriod(period, q2);
+                }
             } else if (period.getName().endsWith("2")) {
                 Period q1 = findPeriodOfCompanyByPeriodName(company, period.getName().substring(0, period.getName().length() - 1) + "1");
 
                 if (q1 == null) {
-                    throw new PortfolioManagerException("Required previous periods are mising!");
+                    throw new PortfolioManagerException("Required previous periods are missing!");
                 }
 
-                subtractPeriod(period, q1);
+                if(period.getId().equals(Long.valueOf(0))) {
+                    subtractPeriod(period, q1);
+                }
             }
         }
 
+        period.setId(null);
         this.periodRepository.persist(period);
         this.periodRepository.persist(period.getBalanceSheet());
         this.periodRepository.persist(period.getCashFlowStatement());
@@ -227,65 +228,83 @@ public class PeriodServiceImpl implements PeriodService {
             return;
         }
 
-        boolean isBank = periods.get(0).getCompany().getIndustrySector().getCode().equals(Constants.BANK_CODE);
-
+        boolean isBank = periods.get(0).getCompany().isBank();
         BigDecimal hundred = new BigDecimal(100);
+        BigDecimal ten = new BigDecimal(10);
         List<Period> orderedPeriods = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
 
-        for(Period p: orderedPeriods) {
+        for(Period period: orderedPeriods) {
             if(isBank) {
-                p.setBankStatement(this.periodRepository.findBankStatementOfPeriod(p));
+                period.setBankStatement(this.periodRepository.findBankStatementOfPeriod(period));
             } else {
-                p.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(p));
-                p.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(p));
-                p.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(p));
+                period.setIncomeStatement(this.periodRepository.findIncomeStatementByPeriodId(period));
+                period.setCashFlowStatement(this.periodRepository.findCashFlowStatementByPeriodId(period));
+                period.setBalanceSheet(this.periodRepository.findBalanceSheetByPeriodId(period));
             }
+            period.cleanIndicators();
         }
+
         try {
-        // First period in the list is freshest(last announced) historically
-        for(int i=0; i< orderedPeriods.size(); i++) {
-            Period p = orderedPeriods.get(i);
+            // First period in the list is freshest(last announced) historically
+            for(int i=0; i< orderedPeriods.size(); i++) {
+                Period period = orderedPeriods.get(i);
 
-            if(isBank && orderedPeriods.size() - i > 3) {
-                BankStatement bs = p.getBankStatement();
-                BigDecimal netIncome = bs.getNetIncome().add(orderedPeriods.get(i+1).getBankStatement().getNetIncome()).add(orderedPeriods.get(i+2).getBankStatement().getNetIncome()).add(orderedPeriods.get(i+3).getBankStatement().getNetIncome());
+                if(isBank) {
+                    if(orderedPeriods.size() - i > 3) {
+                        BankStatement bs = period.getBankStatement();
+                        BigDecimal netIncome = bs.getNetIncome().add(orderedPeriods.get(i + 1).getBankStatement().getNetIncome())
+                                .add(orderedPeriods.get(i + 2).getBankStatement().getNetIncome()).add(orderedPeriods.get(i + 3).getBankStatement().getNetIncome());
 
-                p.setRoe(netIncome.divide(p.getBankStatement().getEquity(),4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-                p.setMoneyGenerated(netIncome);
+                        period.setRoe(netIncome.divide(period.getBankStatement().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                        period.setMoneyGenerated(netIncome);
 
-                this.periodRepository.update(p);
-                continue;
-            } else if(isBank) {
-                continue;
+                        this.periodRepository.update(period);
+                    }
+
+                    if(orderedPeriods.size() - i > 4) {
+                        period.setEbitGrowth(((period.getBankStatement().getNetIncome().subtract(orderedPeriods.get(i+4).getBankStatement().getNetIncome())).divide(orderedPeriods.get(i+4).getBankStatement().getNetIncome(),2, BigDecimal.ROUND_HALF_UP)).multiply(hundred));
+                        period.getEbitGrowth().setScale(0, RoundingMode.HALF_UP);
+                        period.getEbitGrowth().stripTrailingZeros();
+                    }
+                    continue;
+                }
+
+                IncomeStatement is = period.getIncomeStatement();
+                CashFlowStatement cf = period.getCashFlowStatement();
+
+                // calculate quarterly performance
+                period.setGrossMargin(is.getGrossProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                period.setEbitMargin(is.getOperatingProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                period.setNetProfitMargin(is.getNetProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+
+                if(orderedPeriods.size() - i > 3) { // there are at least 4 periods backward
+                    BigDecimal revenue = is.getRevenue().add(orderedPeriods.get(i+1).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+2).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+3).getIncomeStatement().getRevenue());
+                    BigDecimal grossProfit = is.getGrossProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getGrossProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getGrossProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getGrossProfit());
+                    BigDecimal ebit = is.getOperatingProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getOperatingProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getOperatingProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getOperatingProfit());
+                    BigDecimal netProfit = is.getNetProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getNetProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getNetProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getNetProfit());
+                    BigDecimal depAmortExp = cf.getDepAndAmrtExpenses().add(orderedPeriods.get(i+1).getCashFlowStatement().getDepAndAmrtExpenses()).add(orderedPeriods.get(i+2).getCashFlowStatement().getDepAndAmrtExpenses()).add(orderedPeriods.get(i+3).getCashFlowStatement().getDepAndAmrtExpenses());
+                    BigDecimal capex = cf.getCapitalExpenditures().add(orderedPeriods.get(i+1).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+2).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+3).getCashFlowStatement().getCapitalExpenditures());
+                    BigDecimal dividends = cf.getDividendPayments().add(orderedPeriods.get(i+1).getCashFlowStatement().getDividendPayments()).add(orderedPeriods.get(i+2)
+                            .getCashFlowStatement().getDividendPayments()).add(orderedPeriods.get(i+3).getCashFlowStatement().getDividendPayments());
+
+                    period.setGrossMarginTTM(grossProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                    period.setEbitMarginTTM(ebit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                    period.setNetProfitMarginTTM(netProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                    period.setRoe(netProfit.divide(period.getBalanceSheet().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+
+                    period.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex).add(dividends));
+                    period.setCompanyValue(period.getBalanceSheet().getEquity().subtract(period.getBalanceSheet().getIntangibleAssets()));
+                }
+
+                if(orderedPeriods.size() - i > 4) {
+                    period.setEbitGrowth(((period.getIncomeStatement().getOperatingProfit().subtract(orderedPeriods.get(i+4).getIncomeStatement().getOperatingProfit())).divide(orderedPeriods.get(i+4).getIncomeStatement().getOperatingProfit(),2, BigDecimal.ROUND_HALF_UP)).multiply(hundred));
+                    period.getEbitGrowth().setScale(0, RoundingMode.HALF_UP);
+                    period.getEbitGrowth().stripTrailingZeros();
+                }
+
+                this.periodRepository.update(period);
             }
-
-            IncomeStatement is = p.getIncomeStatement();
-            CashFlowStatement cf = p.getCashFlowStatement();
-
-            // calculate quarterly performance
-            p.setGrossMargin(is.getGrossProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-            p.setEbitMargin(is.getOperatingProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-            p.setNetProfitMargin(is.getNetProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-
-            if(orderedPeriods.size() - i > 3) { // there are at least 4 periods backward
-                BigDecimal revenue = is.getRevenue().add(orderedPeriods.get(i+1).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+2).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+3).getIncomeStatement().getRevenue());
-                BigDecimal grossProfit = is.getGrossProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getGrossProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getGrossProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getGrossProfit());
-                BigDecimal ebit = is.getOperatingProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getOperatingProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getOperatingProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getOperatingProfit());
-                BigDecimal netProfit = is.getNetProfit().add(orderedPeriods.get(i+1).getIncomeStatement().getNetProfit()).add(orderedPeriods.get(i+2).getIncomeStatement().getNetProfit()).add(orderedPeriods.get(i+3).getIncomeStatement().getNetProfit());
-                BigDecimal depAmortExp = cf.getDepAndAmrtExpenses().add(orderedPeriods.get(i+1).getCashFlowStatement().getDepAndAmrtExpenses()).add(orderedPeriods.get(i+2).getCashFlowStatement().getDepAndAmrtExpenses()).add(orderedPeriods.get(i+3).getCashFlowStatement().getDepAndAmrtExpenses());
-                BigDecimal capex = cf.getCapitalExpenditures().add(orderedPeriods.get(i+1).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+2).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+3).getCashFlowStatement().getCapitalExpenditures());
-
-                p.setGrossMarginTTM(grossProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-                p.setEbitMarginTTM(ebit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-                p.setNetProfitMarginTTM(netProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-                p.setRoe(netProfit.divide(p.getBalanceSheet().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
-
-                p.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex));
-                p.setCompanyValue(p.getBalanceSheet().getEquity().subtract(p.getBalanceSheet().getIntangibleAssets()));
-            }
-            this.periodRepository.update(p);
-        }
-        }catch (NullPointerException np) {
+        } catch (NullPointerException np) {
             np.printStackTrace();
         }
 
@@ -299,23 +318,59 @@ public class PeriodServiceImpl implements PeriodService {
         if(company == null) {
             return;
         }
+        List<Period> periods = findPeriodsOfCompany(company);
+        List<Period> orderedPeriods = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
+
+        for(int i=0; i < orderedPeriods.size(); i++) {
+            if(orderedPeriods.get(i).getName().equals(period.getName())) {
+               break;
+            }
+        }
 
         period.setCompany(company);
-        period.getBalanceSheet().setTotalDebt(period.getBalanceSheet().getShortTermDebt().add(period.getBalanceSheet().getLongTermDebt()));
 
-        period.getIncomeStatement().setPeriod(period);
-        period.getBalanceSheet().setPeriod(period);
-        period.getCashFlowStatement().setPeriod(period);
+        if(company.isBank()) {
+            period.getBankStatement().setPeriod(period);
+            this.periodRepository.update(period.getBankStatement());
+        } else {
+            period.getBalanceSheet().setTotalDebt(period.getBalanceSheet().getShortTermDebt().add(period.getBalanceSheet().getLongTermDebt()).add(period.getBalanceSheet().getCurrentPortionOfLongTermDebt()));
+            period.getIncomeStatement().setPeriod(period);
+            period.getBalanceSheet().setPeriod(period);
+            period.getCashFlowStatement().setPeriod(period);
 
-        this.periodRepository.update(period.getBalanceSheet());
-        this.periodRepository.update(period.getCashFlowStatement());
-        this.periodRepository.update(period.getIncomeStatement());
+            this.periodRepository.update(period.getBalanceSheet());
+            this.periodRepository.update(period.getCashFlowStatement());
+            this.periodRepository.update(period.getIncomeStatement());
+        }
 
         this.periodRepository.update(period);
+
+        setPeriodIndicators(findPeriodsOfCompany(company));
     }
 
     @Override
     public void remove(Period period) {
+        Company company = period.getCompany();
+        List<Period> periodToDelete = new ArrayList<>();
+        List<Period> periods = findPeriodsOfCompany(company);
+        List<Period> orderedPeriods = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
+
+        for(int i=0; i < orderedPeriods.size(); i++) {
+            if(orderedPeriods.get(i).getName().equals(period.getName())) {
+                break;
+            }
+            periodToDelete.add(orderedPeriods.get(i));
+        }
+
+        periodToDelete.forEach(p-> removePeriod(p));
+        removePeriod(period);
+        company.cleanIndicators();
+        companyService.update(company);
+        updateIndicators(company);
+    }
+
+    private void removePeriod(Period period) {
+        pricingPeriodService.remove(period);
         this.periodRepository.removeBalanceSheetOfPeriod(period);
         this.periodRepository.removeIncomeStatementOfPeriod(period);
         this.periodRepository.removeCashFlowStatementOfPeriod(period);
@@ -333,6 +388,18 @@ public class PeriodServiceImpl implements PeriodService {
     }
 
     public Period getPeriodById(Long id) {
-        return this.periodRepository.findById(id);
+        Period period = this.periodRepository.findById(id);
+
+        if(period != null) {
+            if(period.getCompany().isBank()) {
+                period.setBankStatement(periodRepository.findBankStatementOfPeriod(period));
+            } else {
+                period.setBalanceSheet(periodRepository.findBalanceSheetByPeriodId(period));
+                period.setIncomeStatement(periodRepository.findIncomeStatementByPeriodId(period));
+                period.setCashFlowStatement(periodRepository.findCashFlowStatementByPeriodId(period));
+            }
+        }
+
+        return period;
     }
 }

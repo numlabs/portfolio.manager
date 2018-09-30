@@ -22,16 +22,12 @@ $(document).ready(function() {
             for (var i = 0; i < data.length; i++) {
                 exchanges += '<option value="' + data[i].id + '">' + data[i].name + '</option>';
             }
+
             $('#exchange').append(exchanges);
             $('#search-exchange').append(exchanges);
         } else {
             alert("No exchanges found registered!");
         }
-    });
-
-    $( "#bubum" ).submit(function( event ) {
-      event.preventDefault();
-      $( "#s-report" ).submit();
     });
 });
 
@@ -50,7 +46,7 @@ function uploadPeriodsFile() {
 
     xhr.onload = function() {
         if (xhr.status == 200) {
-            setTimeout(function(){alert("Parsing completed successfully.")}, 1000);
+            //setTimeout(function(){alert("Parsing completed successfully.")}, 1000);
         } else {
             alert("Error! Parsing failed");
         }
@@ -93,6 +89,8 @@ function loadPeriodData(data){
     $('#i-assets').val(period.balanceSheet.intangibleAssets);
     $('#c-liabilities').val(period.balanceSheet.currentLiabilities);
     $('#s-debt').val(period.balanceSheet.shortTermDebt);
+    $('#cp-long-debt').val(period.balanceSheet.currentPortionOfLongTermDebt);
+
     $('#t-payables').val(period.balanceSheet.tradePayables);
     $('#t-liabilities').val(period.balanceSheet.totalLiabilities);
     $('#l-debt').val(period.balanceSheet.longTermDebt);
@@ -158,6 +156,7 @@ function addPeriod() {
     var longTermDebt =  $('#l-debt').val();
     var equity =  $('#equity').val();
     var shortTermDebt =  $('#s-debt').val();
+    var currentPortionOfLongTermDebt =  $('#cp-long-debt').val();
 	var description = $('#description').val();
 	var recalculate = $('#recalculate').is(':checked');
 
@@ -203,6 +202,7 @@ function addPeriod() {
                 "intangibleAssets": intangibleAssets ,
                 "currentLiabilities": currentLiabilities ,
                 "shortTermDebt": shortTermDebt ,
+                "currentPortionOfLongTermDebt" :currentPortionOfLongTermDebt,
                 "tradePayables": $('#t-payables').val(),
                 "totalLiabilities": totalLiabilities ,
                 "longTermDebt": longTermDebt ,
@@ -292,7 +292,7 @@ function resetFields() {
     $('#l-debt').val('');
     $('#equity').val('');
     $('#r-earnings').val('');
-
+    $('#cp-long-debt').val('');
     $('#revenue').val('');
     $('#sales-abroad').val('');
     $('#sales-local').val('');
@@ -352,6 +352,7 @@ function searchPeriod() {
 
                     $("#delete-btn").show();
                     $("#submit-btn").html("Update");
+                    $("#submit-btn").show();
                     $('#mode').val("edit");
                     $("#recalculate-div").hide();
                 } else {

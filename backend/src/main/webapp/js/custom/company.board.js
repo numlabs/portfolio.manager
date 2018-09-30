@@ -114,247 +114,265 @@ function getBankPeriodData(data) {
 function getPeriodData(data) {
     var tableRow = "";
 
-	tableRow += "<tr><td><b>BALANCE SHEET</b></td></tr>";
+    tableRow += "<tr><td>Earnings Date</td>";
 
-	tableRow += "</tr><td><b>Current Assets</b></td>";
+    for (i = 0; i < data.length; i++) {
+          tableRow += "<td align='right'><b>" + data[i].earningsDate.substring(0,10) + "</b></td>";
+    }
+
+	tableRow += "<tr><td><b>BALANCE SHEET</b></td>";
+
+	for (i = 0; i < data.length; i++) {
+	    tableRow += "<td align='right'>---</td>";
+	}
+
+	tableRow += "</tr><tr><td><b>Current Assets</b></td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.currentAssets) + "</b></td>";
     }
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Cash</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Cash</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.cashAndEquivalents) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Trade Receivables</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Trade Receivables</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.tradeReceivables) + "</td>";
 	}
 
-    tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Inventories</td>";
+    tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Inventories</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.inventories) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Prepayments</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Prepayments</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.prepayments) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Total Assets</b></td>";
+	tableRow += "</tr><tr><td><b>Total Assets</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.totalAssets) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Prop., Plant & Eqp.</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Prop., Plant & Eqp.</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.propertyPlantEquipment) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Int. Assets</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Int. Assets</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.intangibleAssets) + "</td>";
 	}
 
-    tableRow += "</tr><td><b>Current Liabilities</b></td>";
+    tableRow += "</tr><tr><td><b>Current Liabilities</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.currentLiabilities) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Trade Payables</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Trade Payables</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.tradePayables) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Total Liabilities</b></td>";
+	tableRow += "</tr><tr><td><b>Total Liabilities</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.totalLiabilities) + "</b></td>";
 	}
 
-	tableRow += "</tr><td><b>Equity</b></td>";
+	tableRow += "</tr><tr><td><b>Equity</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.equity) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Reatined Earnings</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Reatined Earnings</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.retainedEarnings) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Total Debt</b></td>";
+	tableRow += "</tr><tr><td><b>Total Debt</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.totalDebt) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;Short Term Debt</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;Short Term Debt</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.shortTermDebt) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;Long Term Debt</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;Cur. Portion of Long Term Debt</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.currentPortionOfLongTermDebt) + "</td>";
+    }
+
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;Long Term Debt</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.longTermDebt) + "</td>";
 	}
 
-	tableRow += "</tr><tr><td></td></tr><tr><td><b>INCOME STATEMENT</b></td></tr>";
+	tableRow += "</tr><tr><td><b>INCOME STATEMENT</b></td>";
 
-	tableRow += "</tr><td><b>Revenue</b></td>";
+	for (i = 0; i < data.length; i++) {
+	    tableRow += "<td align='right'></td>";
+	}
+
+	tableRow += "</tr><tr><td><b>Revenue</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.revenue) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Abroad (Yearly)</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Abroad (Yearly)</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesAbroad) + "</td>";
     }
 
-    tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Local Market (Yearly)</td>";
+    tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Local Market (Yearly)</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesLocal) + "</td>";
     }
 
-	tableRow += "</tr><td><b>Gross Profit</b></td>";
+	tableRow += "</tr><tr><td><b>Gross Profit</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.grossProfit) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sell., Mark. & Distr. Expenses</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sell., Mark. & Distr. Expenses</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.sellingMarketingDistributionExpenses) + "</td>";
     }
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Gen. Adm. Expenses</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Gen. Adm. Expenses</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.generalAdministrativeExpenses) + "</td>";
     }
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;R&D Expenses</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;R&D Expenses</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.researchDevelopmentExpenses) + "</td>";
     }
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Other Oper. Income</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Other Oper. Income</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.otherOperatingIncome) + "</td>";
     }
 
-    tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Other Oper. Expenses</td>";
+    tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Other Oper. Expenses</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.otherOperatingExpense) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Operating Profit</b></td>";
+	tableRow += "</tr><tr><td><b>Operating Profit</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.operatingProfit) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Tax Expenses</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Tax Expenses</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.taxExpenses) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Finance Income</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Finance Income</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.financialIncome) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Finance Cost</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Finance Cost</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.financialExpenses) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Net Profit</b></td>";
+	tableRow += "</tr><tr><td><b>Net Profit</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.netProfit) + "</b></td>";
 	}
 
+	tableRow += "</tr><tr><td><b>CASH FLOW</b></td>";
 
-
-	tableRow += "</tr><tr><td><b>CASH FLOW</b></td></tr><tr>";
-
-	for (i = 0; i < data.length+1; i++) {
+	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'></td>";
 	}
 
-	tableRow += "</tr><td><b>Operating Activities Cash</b></td>";
+	tableRow += "</tr><tr><td><b>Operating Activities Cash</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].cashFlowStatement.operatingActivitiesCash) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Depr. & Amort. Exp.</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Depr. & Amort. Exp.</td>";
 
     for (i = 0; i < data.length; i++) {
    		tableRow += "<td align='right'>" + formatValue(data[i].cashFlowStatement.depAndAmrtExpenses) + "</td>";
    	}
 
-	tableRow += "</tr><td><b>Investing Activities Cash</b></td>";
+	tableRow += "</tr><tr><td><b>Investing Activities Cash</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].cashFlowStatement.investingActivitiesCash) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Capex</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Capex</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].cashFlowStatement.capitalExpenditures) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Financing Ativities Cash</b></td>";
+	tableRow += "</tr><tr><td><b>Financing Ativities Cash</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].cashFlowStatement.financingAtivitiesCash) + "</b></td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Dividend Payment</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Dividend Payment</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].cashFlowStatement.dividendPayments) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Debt Issued</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Debt Issued</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].cashFlowStatement.debtIssued) + "</td>";
 	}
 
-	tableRow += "</tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Debt Payments</td>";
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Debt Payments</td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'>" + formatValue(data[i].cashFlowStatement.debtPayments) + "</td>";
 	}
 
-	tableRow += "</tr><td><b>Net Cash</b></td>";
+	tableRow += "</tr><tr><td><b>Net Cash</b></td>";
 
 	for (i = 0; i < data.length; i++) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].cashFlowStatement.cash) + "</b></td>";

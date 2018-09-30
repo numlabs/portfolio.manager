@@ -105,6 +105,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="website">Website</label>
+                    <input type="text" class="form-control" id="website" placeholder="a url of the company website">
+                </div>
+
+                <div class="form-group">
                     <label for="description">Description</label>
                     <textarea class="form-control" id="description" rows="3"></textarea>
                 </div>
@@ -114,7 +119,9 @@
 
                 <button id="submit-btn" type="submit" class="btn btn-primary" onclick="addCompany()">Add Company</button>
                 <button id="delete-btn" type="submit" class="btn btn-danger" onclick="removeCompany()">Delete</button>
-                <button id="reset-btn" type="submit" class="btn btn-danger" onclick="resetCompany()">Reset Indicators</button>
+                <button id="reset-btn" type="submit" class="btn btn-danger" onclick="resetFields()">Reset</button>
+                <button id="reset-company-btn" type="submit" class="btn btn-danger" onclick="resetCompany()">Reset Indicators</button>
+                <button id="rm-com-periods-btn" type="submit" class="btn btn-danger" onclick="removeCompanyPeriods()">Remove Company Periods</button>
 
                 <br/><br/>
 

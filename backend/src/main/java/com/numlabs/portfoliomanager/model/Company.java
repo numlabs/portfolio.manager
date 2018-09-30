@@ -31,9 +31,6 @@ public class Company implements Serializable {
     @Column(name="price")
     private BigDecimal price;
 
-    @Column(name="price_date")
-    private Date priceDate;
-
     @Column(name="stock_url")
     private String stockUrl;
 
@@ -49,6 +46,17 @@ public class Company implements Serializable {
 
     @Column(name="ev_ebit_min")
     private BigDecimal evToEbitMin;
+
+    @Column(name="kap_url")
+    private String kapUrl;
+
+    @Column(name="website")
+    private String website;
+
+    // calculated fields
+
+    @Column(name="price_date")
+    private Date priceDate;
 
     @Column(name="ebit")
     private BigDecimal ebit;
@@ -92,9 +100,8 @@ public class Company implements Serializable {
     @Column(name="book_value")
     private BigDecimal bookValue;
 
-    @Column(name="kap_url")
-    private String kapUrl;
-
+    @Column(name="ebit_growth")
+    private String ebitGrowth;
     // transient fields
 
     @Transient
@@ -118,7 +125,36 @@ public class Company implements Serializable {
     @Transient
     private List<Period> periods;
 
-    public Company() {}
+    @Transient
+    private List<CompanyNote> companyNotes;
+
+    public Company() {
+        this.sharesOutstanding = new BigDecimal(0);
+    }
+
+    public List<CompanyNote> getCompanyNotes() {
+        return companyNotes;
+    }
+
+    public void setCompanyNotes(List<CompanyNote> companyNotes) {
+        this.companyNotes = companyNotes;
+    }
+
+    public String getEbitGrowth() {
+        return ebitGrowth;
+    }
+
+    public void setEbitGrowth(String ebitGrowth) {
+        this.ebitGrowth = ebitGrowth;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
 
     public Date getPriceDate() {
         return priceDate;
@@ -128,10 +164,6 @@ public class Company implements Serializable {
         this.priceDate = priceDate;
     }
 
-    /**
-     * Used for error messages when handling a company.
-     * @param description
-     */
     public Company(String description) {
         this.description = description;
     }
@@ -403,5 +435,29 @@ public class Company implements Serializable {
         }
 
         return false;
+    }
+
+    @Transient
+    public void cleanIndicators() {
+        this.roe = new BigDecimal(0);
+        this.pe = new BigDecimal(0);
+        this.bookValue = new BigDecimal(0);
+        this.companyValue = new BigDecimal(0);
+        this.cashEquivalents = new BigDecimal(0);
+        this.ebit = new BigDecimal(0);
+        this.ebitLastPeriod = new BigDecimal(0);
+        this.ebitMargin = new BigDecimal(0);
+        this.grossMargin = new BigDecimal(0);
+        this.netProfit = new BigDecimal(0);
+        this.netProfitMargin = new BigDecimal(0);
+        this.equity = null;
+        this.evToCv = new BigDecimal(0);
+        this.evToEbitLastPeriod = new BigDecimal(0);
+        this.pb = new BigDecimal(0);
+        this.sharesOutstanding = new BigDecimal(0);
+        this.totalDebt = new BigDecimal(0);
+        this.evToMg = new BigDecimal(0);
+        this.moneyGenerated = new BigDecimal(0);
+        this.priceDate = new Date();
     }
 }

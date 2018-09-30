@@ -35,7 +35,7 @@ function addPeriod() {
     var tickerSymbol = $('#ticker-symbol').val();
     var earningsDate = $('#earnings-date').val();
     var exchange = $('#exchange').val();
-	var shares = $('#shares-oustanding').val();
+	var shares = $('#shares-outstanding').val();
 	var netIncome = $('#n-income').val();
     var assets = $('#assets').val();
     var intangibleAssets =  $('#i-assets').val();
@@ -108,8 +108,7 @@ function resetFields() {
     $('#earnings-date').val('');
     $('#ticker-symbol').val('');
     $('#exchange').val(0);
-    $('#shares-oustanding').val('');
-    $('#earnings-date').val('');
+    $('#shares-outstanding').val('');
 
   	$('#n-income').val('');
     $('#assets').val('');
@@ -121,4 +120,64 @@ function resetFields() {
     $('#loans').val('');
     $('#deposits').val('');
     $('#dividends').val('');
+}
+
+function loadPeriodData(period) {
+    $('#name').val(period.name);
+    $('#earnings-date').val(period.earningsDate.substring(0, 16));
+    $('#ticker-symbol').val(period.tickerSymbol);
+    $('#shares-outstanding').val(period.sharesOutstanding);
+
+  	$('#n-income').val(period.bankStatement.netIncome);
+    $('#assets').val(period.bankStatement.assets);
+    $('#i-assets').val(period.bankStatement.intangibleAssets);
+    $('#liabilities').val(period.bankStatement.liabilities);
+    $('#equity').val(period.bankStatement.equity);
+    $('#i-income').val(period.bankStatement.interestIncome);
+    $('#i-expenses').val(period.bankStatement.interestExpenses);
+    $('#loans').val(period.bankStatement.loans);
+    $('#deposits').val(period.bankStatement.deposits);
+    $('#dividends').val(period.bankStatement.dividends);
+}
+
+function searchPeriod() {
+    var tickerSymbol = $('#company-search').val();
+    var exchange = $('#search-exchange').val();
+    var periodName = $('#search-name').val();
+
+    if(tickerSymbol.trim() == '' || exchange == 0 || periodName == '')  {
+        alert("Please fill required ticket symbol, exchange and period name fields. ");
+    } else {
+        resetFields();
+
+        $("#delete-btn").hide();
+        $("#submit-btn").html("Add Period");
+        $("#recalculate-div").show();
+
+        $.get("/portfoliomng/period/search/" + tickerSymbol + "." + exchange + "." + periodName, function(data, status) {
+           if (status == 'success') {
+                if(data.name != null && data.name != undefined) {
+                    loadPeriodData(data);
+                    $('#exchange').val(data.company.exchange.id);
+                    $('#ticker-symbol').val(data.company.tickerSymbol);
+
+                    $('#id').val(data.id);
+                    $('#bank-id').val(data.bankStatement.id);
+
+                    $("#delete-btn").show();
+                    $("#submit-btn").html("Update");
+                    $('#mode').val("edit");
+                    $("#recalculate-div").hide();
+                } else {
+                    alert("Period not found.");
+                }
+            } else {
+                $('#mode').val("add");
+                alert("No Period found for the specified criteria.");
+                $("#recalculate-div").show();
+                $("#delete-btn").hide();
+            }
+        });
+    }
+
 }

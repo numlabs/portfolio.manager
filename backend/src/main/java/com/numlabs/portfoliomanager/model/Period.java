@@ -82,7 +82,18 @@ public class Period implements Serializable {
     @Column(name = "lower_price")
     private BigDecimal lowerPrice;
 
+    @Column(name = "ebit_growth")
+    private BigDecimal ebitGrowth; // EBIT growth compered the the same period previous year
+
     public Period() {}
+
+    public BigDecimal getEbitGrowth() {
+        return ebitGrowth;
+    }
+
+    public void setEbitGrowth(BigDecimal ebitGrowth) {
+        this.ebitGrowth = ebitGrowth;
+    }
 
     public BigDecimal getHigherPrice() {
         return higherPrice;
@@ -263,5 +274,18 @@ public class Period implements Serializable {
 
     public void setCompanyValue(BigDecimal companyValue) {
         this.companyValue = companyValue;
+    }
+
+    public void cleanIndicators() {
+        this.companyValue = new BigDecimal(0);
+        this.roe = new BigDecimal(0);
+        this.netProfitMarginTTM = new BigDecimal(0);
+        this.netProfitMargin = new BigDecimal(0);
+        this.grossMarginTTM = new BigDecimal(0);
+        this.grossMargin = new BigDecimal(0);
+        this.ebitMargin = new BigDecimal(0);
+        this.ebitMarginTTM = new BigDecimal(0);
+        this.debtToNetProfitMargin = new BigDecimal(0);
+        this.moneyGenerated = new BigDecimal(0);
     }
 }

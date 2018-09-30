@@ -51,6 +51,9 @@ public class BalanceSheet implements Serializable {
     @Column(name = "short_term_debt")
     private BigDecimal shortTermDebt;
 
+    @Column(name = "current_portion_of_long_term_debt")
+    private BigDecimal currentPortionOfLongTermDebt;
+
     @Column(name = "trade_payables")
     private BigDecimal tradePayables;
 
@@ -81,6 +84,7 @@ public class BalanceSheet implements Serializable {
         this.intangibleAssets = new BigDecimal(0);
         this.currentLiabilities = new BigDecimal(0);
         this.shortTermDebt = new BigDecimal(0);
+        this.currentPortionOfLongTermDebt = new BigDecimal(0);
         this.tradePayables = new BigDecimal(0);
         this.totalLiabilities = new BigDecimal(0);
         this.longTermDebt = new BigDecimal(0);
@@ -88,7 +92,6 @@ public class BalanceSheet implements Serializable {
         this.equity = new BigDecimal(0);
         this.retainedEarnings = new BigDecimal(0);
     }
-
 
     public Long getId() {
         return id;
@@ -184,6 +187,14 @@ public class BalanceSheet implements Serializable {
 
     public void setShortTermDebt(BigDecimal shortTermDebt) {
         this.shortTermDebt = shortTermDebt;
+    }
+
+    public BigDecimal getCurrentPortionOfLongTermDebt() {
+        return currentPortionOfLongTermDebt;
+    }
+
+    public void setCurrentPortionOfLongTermDebt(BigDecimal currentPortionOfLongTermDebt) {
+        this.currentPortionOfLongTermDebt = currentPortionOfLongTermDebt;
     }
 
     public BigDecimal getTradePayables() {

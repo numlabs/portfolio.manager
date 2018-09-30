@@ -84,12 +84,25 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public void calculateIndicators(Company company) {
         List<Period> periods = periodService.findPeriodsOfCompany(company);
+        company.cleanIndicators();
 
         if (periods == null || periods.size() < 4) {
             return;
         }
 
         List<Period> ordered = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
+
+        StringBuilder ebitGrowth = new StringBuilder("");
+
+        for(int i=0; i < ordered.size() && i < 4; i++) {
+            if(ordered.get(i).getEbitGrowth() != null) {
+                ebitGrowth.append("#");
+                ebitGrowth.append(ordered.get(i).getEbitGrowth().toBigInteger());
+                ebitGrowth.append("% ");
+            }
+        }
+
+        company.setEbitGrowth(ebitGrowth.toString());
 
         if(company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
             BigDecimal netProfit = ordered.get(0).getBankStatement().getNetIncome().add(ordered.get(1).getBankStatement().getNetIncome()).
@@ -151,7 +164,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void update(Company updCompany, boolean removePeriods) {
-        periodService.removeCompanyPeriods(updCompany);
+        if(removePeriods) {
+            periodService.removeCompanyPeriods(updCompany);
+        }
         this.update(updCompany);
     }
 }

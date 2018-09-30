@@ -127,6 +127,10 @@ public class PeriodRepository extends PortfolioManagerRepository<Period> {
         }
     }
 
+    public void update(BankStatement element){
+        this.entityManager.merge(element);
+    }
+
     public void update(BalanceSheet element){
         this.entityManager.merge(element);
     }

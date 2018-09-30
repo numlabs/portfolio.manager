@@ -32,7 +32,7 @@ function addCompanyToTable(data) {
 
 	tableRow += "<td align='left' style='color:red;'><a href='/portfoliomng/company-board.html?id=" +
 	            data.id + "&companySectorCode=" + data.industrySector.code + "'>" +  data.tickerSymbol + " - " + data.name + "</a></td><td align='right'>";
-    tableRow += "<b>" + formatValue(data.price) + "</b> (" + data.priceDate.substring(8,10) + "/" + data.priceDate.substring(5,7)  + ")</td> <td align='right'>";
+    tableRow += "<b>" + formatValue(data.price) + "</b> (" + data.priceDate.substring(8,10) + "/" + data.priceDate.substring(5,7) + "/" + data.priceDate.substring(2,4) + ")</td> <td align='right'>";
 	tableRow += formatValue(data.evToEbitLastPeriod) + "</td> <td align='right'>";
 	tableRow += formatValue(data.evToEbit) + "</td> <td align='right'>";
     tableRow += formatValue(data.evToEbitMax) + "</td> <td align='right'>";
@@ -44,9 +44,11 @@ function addCompanyToTable(data) {
 	tableRow += formatPercentValue(data.roe) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.grossMargin) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.ebitMargin) + "</td> <td align='right'>";
-    tableRow += formatPercentValue(data.netProfitMargin) + "</td> <td align='left'> ";
+    tableRow += formatPercentValue(data.netProfitMargin) + "</td> <td align='right'> ";
+    tableRow += ((data.ebitGrowth == null)? '' : data.ebitGrowth) + "</td> <td align='left'> ";
     tableRow += "<a href='" + data.stockUrl + "' target='_blank'>inv.com</a></td> <td align='left'>";
-    tableRow += "<a href='" + data.kapUrl + "' target='_blank'>KAP</a></td> <td align='left'></td> </tr>" ;
+    tableRow += "<a href='" + data.kapUrl + "' target='_blank'>kap</a></td> <td align='left'>";
+    tableRow += "<a href='" + data.website + "' target='_blank'>web</a></td> <td align='left'></td> </tr>" ;
 
 	return tableRow;
 }
