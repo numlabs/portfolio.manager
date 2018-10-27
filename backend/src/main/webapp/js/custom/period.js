@@ -96,6 +96,7 @@ function loadPeriodData(data){
     $('#l-debt').val(period.balanceSheet.longTermDebt);
     $('#equity').val(period.balanceSheet.equity);
     $('#r-earnings').val(period.balanceSheet.retainedEarnings);
+    $('#minority-interest').val(period.balanceSheet.minorityInterest);
 
     $('#revenue').val(period.incomeStatement.revenue);
     $('#sales-abroad').val(period.incomeStatement.salesAbroad);
@@ -154,6 +155,7 @@ function addPeriod() {
     var currentLiabilities =  $('#c-liabilities').val();
     var totalLiabilities =  $('#t-liabilities').val();
     var longTermDebt =  $('#l-debt').val();
+    var minorityInterest =  $('#minority-interest').val();
     var equity =  $('#equity').val();
     var shortTermDebt =  $('#s-debt').val();
     var currentPortionOfLongTermDebt =  $('#cp-long-debt').val();
@@ -207,6 +209,7 @@ function addPeriod() {
                 "totalLiabilities": totalLiabilities ,
                 "longTermDebt": longTermDebt ,
                 "equity": equity ,
+                "minorityInterest": minorityInterest,
                 "retainedEarnings": $('#r-earnings').val()
             },
             "incomeStatement": {
@@ -292,6 +295,8 @@ function resetFields() {
     $('#l-debt').val('');
     $('#equity').val('');
     $('#r-earnings').val('');
+    $('#minority-interest').val('');
+
     $('#cp-long-debt').val('');
     $('#revenue').val('');
     $('#sales-abroad').val('');

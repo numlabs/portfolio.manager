@@ -31,6 +31,12 @@ public class Company implements Serializable {
     @Column(name="price")
     private BigDecimal price;
 
+    @Column(name="buy_price")
+    private BigDecimal buyPrice;
+
+    @Column(name="sell_price")
+    private BigDecimal sellPrice;
+
     @Column(name="stock_url")
     private String stockUrl;
 
@@ -52,6 +58,9 @@ public class Company implements Serializable {
 
     @Column(name="website")
     private String website;
+
+    @Column(name="country_code")
+    private String countryCode;
 
     // calculated fields
 
@@ -88,6 +97,9 @@ public class Company implements Serializable {
     @Column(name="ebit_margin")
     private BigDecimal ebitMargin;
 
+    @Column(name="ebitda_margin")
+    private BigDecimal ebitdaMargin;
+
     @Column(name="net_profit_margin")
     private BigDecimal netProfitMargin;
 
@@ -102,6 +114,10 @@ public class Company implements Serializable {
 
     @Column(name="ebit_growth")
     private String ebitGrowth;
+
+    @Column(name = "minority_interest")
+    private BigDecimal minorityInterest;
+
     // transient fields
 
     @Transient
@@ -130,6 +146,46 @@ public class Company implements Serializable {
 
     public Company() {
         this.sharesOutstanding = new BigDecimal(0);
+    }
+
+    public BigDecimal getBuyPrice() {
+        return buyPrice;
+    }
+
+    public void setBuyPrice(BigDecimal buyPrice) {
+        this.buyPrice = buyPrice;
+    }
+
+    public BigDecimal getSellPrice() {
+        return sellPrice;
+    }
+
+    public void setSellPrice(BigDecimal sellPrice) {
+        this.sellPrice = sellPrice;
+    }
+
+    public BigDecimal getEbitdaMargin() {
+        return ebitdaMargin;
+    }
+
+    public void setEbitdaMargin(BigDecimal ebitdaMargin) {
+        this.ebitdaMargin = ebitdaMargin;
+    }
+
+    public BigDecimal getMinorityInterest() {
+        return minorityInterest;
+    }
+
+    public void setMinorityInterest(BigDecimal minorityInterest) {
+        this.minorityInterest = minorityInterest;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public List<CompanyNote> getCompanyNotes() {
@@ -447,6 +503,7 @@ public class Company implements Serializable {
         this.ebit = new BigDecimal(0);
         this.ebitLastPeriod = new BigDecimal(0);
         this.ebitMargin = new BigDecimal(0);
+        this.ebitdaMargin = new BigDecimal(0);
         this.grossMargin = new BigDecimal(0);
         this.netProfit = new BigDecimal(0);
         this.netProfitMargin = new BigDecimal(0);

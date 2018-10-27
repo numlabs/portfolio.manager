@@ -1,4 +1,4 @@
-package com.numlabs.portfoliomanager.util;
+package com.numlabs.portfoliomanager.parser;
 
 import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.service.CompanyService;
@@ -210,7 +210,6 @@ public class IsYatirimParser {
         }
         return "Companies defined " + allCompaniesDefined + ", updated " + counter;
     }
-
 }
 
 

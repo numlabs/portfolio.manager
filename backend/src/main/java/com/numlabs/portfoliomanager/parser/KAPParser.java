@@ -42,7 +42,7 @@ public class KAPParser {
             "Prepayments", "Total current assets", "Trade Receivables", "Property, plant and equipment", "Intangible assets and goodwill",
             "Prepayments", "Total assets",
             "Current Borrowings", "Current Portion of Non-current Borrowings", "Trade Payables", "Total current liabilities", "Long Term Borrowings", "Trade Payables",
-            "Total liabilities", "Prior Years' Profits or Losses", "Total equity" };
+            "Total liabilities", "Prior Years' Profits or Losses", "Non-controlling interests", "Total equity" };
 
     private static String[] IS_ELEMENTS = new String[] {"Revenue", "GROSS PROFIT (LOSS)", "General Administrative Expenses", "Marketing Expenses",
             "Research and development expense", "Other Income from Operating Activities", "Other Expenses from Operating Activities",
@@ -127,7 +127,9 @@ public class KAPParser {
                         bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
                     } else if(currentElementKey.startsWith("Prior Years' Profits or Losses")) {
                         bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
-                    } else if(currentElementKey.startsWith("Total equity")) {
+                    } else if(currentElementKey.startsWith("Non-controlling interests")) {
+                        bs.setMinorityInterest(readPeriodValue(cellIter, multiplier,3));
+                    }  else if(currentElementKey.startsWith("Total equity")) {
                         bs.setEquity(readPeriodValue(cellIter, multiplier,3));
                     } else {
                         throw new ParseException("Unexpected element found " + currentElementKey, 0);

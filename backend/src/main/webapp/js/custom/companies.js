@@ -30,20 +30,24 @@ $(document).ready(function() {
 function addCompanyToTable(data) {
 	var tableRow = "<tr id='" + data.tickerSymbol + "'>";
 
-	tableRow += "<td align='left' style='color:red;'><a href='/portfoliomng/company-board.html?id=" +
-	            data.id + "&companySectorCode=" + data.industrySector.code + "'>" +  data.tickerSymbol + " - " + data.name + "</a></td><td align='right'>";
+	tableRow += "<td align='left' style='color:red; width:2px;'><a href='/portfoliomng/company-board.html?id=" +
+	            data.id + "&companySectorCode=" + data.industrySector.code + "'>" + data.tickerSymbol + "</a></td>";
+   	tableRow += "<td align='left' style='color:red;'><a href='/portfoliomng/company-board.html?id=" +
+                	            data.id + "&companySectorCode=" + data.industrySector.code + "'>" + data.name + "</a></td><td align='right'>";
     tableRow += "<b>" + formatValue(data.price) + "</b> (" + data.priceDate.substring(8,10) + "/" + data.priceDate.substring(5,7) + "/" + data.priceDate.substring(2,4) + ")</td> <td align='right'>";
-	tableRow += formatValue(data.evToEbitLastPeriod) + "</td> <td align='right'>";
-	tableRow += formatValue(data.evToEbit) + "</td> <td align='right'>";
-    tableRow += formatValue(data.evToEbitMax) + "</td> <td align='right'>";
-	tableRow += formatValue(data.evToEbitMin) + "</td> <td align='right'>";
+	tableRow += formatValue(data.evToMg) + "</td> <td align='right'>";
 	tableRow += formatValue(data.pe) + "</td> <td align='right'>";
     tableRow += formatValue(data.pb) + "</td> <td align='right'>";
-	tableRow += formatValue(data.evToMg) + "</td> <td align='right'>";
+	tableRow += formatValue(data.evToEbit) + "</td> <td align='right'>";
+	tableRow += formatValue(data.evToEbitLastPeriod) + "</td> <td align='right'>";
+    tableRow += formatValue(data.evToEbitMax) + "</td> <td align='right'>";
+	tableRow += formatValue(data.evToEbitMin) + "</td> <td align='right'>";
+
 	tableRow += formatValue(data.evToCv) + "</td> <td align='right'>";
 	tableRow += formatPercentValue(data.roe) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.grossMargin) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.ebitMargin) + "</td> <td align='right'>";
+    tableRow += formatPercentValue(data.ebitdaMargin) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.netProfitMargin) + "</td> <td align='right'> ";
     tableRow += ((data.ebitGrowth == null)? '' : data.ebitGrowth) + "</td> <td align='left'> ";
     tableRow += "<a href='" + data.stockUrl + "' target='_blank'>inv.com</a></td> <td align='left'>";

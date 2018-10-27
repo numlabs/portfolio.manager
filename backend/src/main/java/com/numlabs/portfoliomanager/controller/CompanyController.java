@@ -52,16 +52,27 @@ public class CompanyController {
 
     @PostMapping("company/update")
     public ResponseEntity<String> updateCompany(@RequestBody Company updCompany) {
-        Company company = companyService.findCompanyByTickerSymbolAndExchange(updCompany.getTickerSymbol(), updCompany.getExchange());
+        Company company = companyService.findCompany(updCompany.getId());
+
+        if(updCompany.getId() == null || updCompany.getId().equals(Long.valueOf(0))) {
+            return new ResponseEntity<> ("The company does not have id.", HttpStatus.EXPECTATION_FAILED);
+        }
 
         if(company == null) {
-            return new ResponseEntity<> (String.format("The company with the %s does not exist.", updCompany.getTickerSymbol()), HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<> (String.format("The company with the id %d does not exist.", updCompany.getId()), HttpStatus.EXPECTATION_FAILED);
+        }
+
+        company = companyService.findCompanyByTickerSymbolAndExchange(updCompany.getTickerSymbol(), updCompany.getExchange());
+
+        if(company != null && !company.getId().equals(updCompany.getId()) ) {
+            return new ResponseEntity<> (String.format("Company with the same ticker symbol already exist on the exchange.", updCompany.getId()), HttpStatus.EXPECTATION_FAILED);
         }
 
         IndustrySector newSector = industrySectorService.getById(updCompany.getIndustrySector().getId());
         updCompany.setIndustrySector(newSector);
 
         if((!company.isBank() && newSector.getCode().equals(Constants.BANK_CODE)) || (company.isBank() && !newSector.getCode().equals(Constants.BANK_CODE))) {
+            // there is a change in Company type, banks are different animals so they have special period types
             companyService.update(updCompany, true);
         } else {
             companyService.update(updCompany, false);
@@ -189,7 +200,7 @@ public class CompanyController {
                 company.setEvToEbitLastPeriod(new BigDecimal(0));
                 selectedBanks.add(company);
             } else {
-                BigDecimal ev = price.add(company.getTotalDebt()).subtract(company.getCashEquivalents());
+                BigDecimal ev = price.add(company.getTotalDebt()).subtract(company.getCashEquivalents()).add(company.getMinorityInterest());
                 company.setEvToEbit(ev.divide(company.getEbit(), 2, RoundingMode.HALF_UP));
                 company.setEvToMg(ev.divide(company.getMoneyGenerated(), 2, RoundingMode.HALF_UP));
                 company.setEvToCv(ev.divide(company.getCompanyValue(), 2, RoundingMode.HALF_UP));
@@ -198,7 +209,7 @@ public class CompanyController {
             }
         }
 
-        selected = selected.stream().sorted(Comparator.comparing(Company::getEvToEbit)).collect(Collectors.toList());
+        selected = selected.stream().sorted(Comparator.comparing(Company::getEvToMg)).collect(Collectors.toList());
         selectedBanks = selectedBanks.stream().sorted(Comparator.comparing(Company::getPe)).collect(Collectors.toList());
         selected.addAll(selectedBanks);
 

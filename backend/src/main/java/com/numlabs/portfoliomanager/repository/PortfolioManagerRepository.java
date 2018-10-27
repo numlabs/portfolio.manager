@@ -4,6 +4,7 @@ import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.model.Exchange;
 import com.numlabs.portfoliomanager.model.Period;
+import com.numlabs.portfoliomanager.model.PriceData;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
@@ -58,4 +59,5 @@ public abstract class PortfolioManagerRepository<T> {
     public void remove(T element) {
         this.entityManager.remove(element);
     }
+
 }

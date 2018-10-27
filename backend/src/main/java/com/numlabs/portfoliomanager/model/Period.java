@@ -49,6 +49,9 @@ public class Period implements Serializable {
     @Column(name = "ebit_margin")
     private BigDecimal ebitMargin;
 
+    @Column(name = "ebitda_margin")
+    private BigDecimal ebitdaMargin;
+
     @Column(name = "net_profit_margin")
     private BigDecimal netProfitMargin;
 
@@ -60,6 +63,9 @@ public class Period implements Serializable {
 
     @Column(name = "ebit_margin_TTM")
     private BigDecimal ebitMarginTTM;
+
+    @Column(name = "ebitda_margin_TTM")
+    private BigDecimal ebitdaMarginTTM;
 
     @Column(name = "net_profit_margin_TTM")
     private BigDecimal netProfitMarginTTM;
@@ -85,7 +91,34 @@ public class Period implements Serializable {
     @Column(name = "ebit_growth")
     private BigDecimal ebitGrowth; // EBIT growth compered the the same period previous year
 
+    @Column(name = "net_left_profit")
+    private Date netLeftProfit;
+
     public Period() {}
+
+    public BigDecimal getEbitdaMargin() {
+        return ebitdaMargin;
+    }
+
+    public void setEbitdaMargin(BigDecimal ebitdaMargin) {
+        this.ebitdaMargin = ebitdaMargin;
+    }
+
+    public BigDecimal getEbitdaMarginTTM() {
+        return ebitdaMarginTTM;
+    }
+
+    public void setEbitdaMarginTTM(BigDecimal ebitdaMarginTTM) {
+        this.ebitdaMarginTTM = ebitdaMarginTTM;
+    }
+
+    public Date getNetLeftProfit() {
+        return netLeftProfit;
+    }
+
+    public void setNetLeftProfit(Date netLeftProfit) {
+        this.netLeftProfit = netLeftProfit;
+    }
 
     public BigDecimal getEbitGrowth() {
         return ebitGrowth;

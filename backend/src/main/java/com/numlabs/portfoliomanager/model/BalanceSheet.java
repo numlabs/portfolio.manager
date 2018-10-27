@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity(name = "BALANCE_SHEET")
 public class BalanceSheet implements Serializable {
@@ -72,6 +73,9 @@ public class BalanceSheet implements Serializable {
     @Column(name = "retained_earnings")
     private BigDecimal retainedEarnings;
 
+    @Column(name = "minority_interest")
+    private BigDecimal minorityInterest;
+
     public BalanceSheet() {
         this.id = null;
         this.currentAssets = new BigDecimal(0);
@@ -91,6 +95,15 @@ public class BalanceSheet implements Serializable {
         this.totalDebt = new BigDecimal(0);
         this.equity = new BigDecimal(0);
         this.retainedEarnings = new BigDecimal(0);
+        this.minorityInterest = new BigDecimal(0);
+    }
+
+    public BigDecimal getMinorityInterest() {
+        return minorityInterest;
+    }
+
+    public void setMinorityInterest(BigDecimal minorityInterest) {
+        this.minorityInterest = minorityInterest;
     }
 
     public Long getId() {

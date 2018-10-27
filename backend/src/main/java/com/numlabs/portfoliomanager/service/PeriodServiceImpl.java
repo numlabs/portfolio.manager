@@ -87,7 +87,7 @@ public class PeriodServiceImpl implements PeriodService {
     }
 
     @Override
-    public void addBankPeriod(Period period) throws PortfolioManagerException {
+    public void addBankPeriod(Period period) {
         Company company = companyService.findCompanyByTickerSymbolAndExchange(period.getCompany().getTickerSymbol(), period.getCompany().getExchange());
 
         if(company == null) {
@@ -230,7 +230,6 @@ public class PeriodServiceImpl implements PeriodService {
 
         boolean isBank = periods.get(0).getCompany().isBank();
         BigDecimal hundred = new BigDecimal(100);
-        BigDecimal ten = new BigDecimal(10);
         List<Period> orderedPeriods = periods.stream().sorted(Comparator.comparing(Period::getName).reversed()).collect(Collectors.toList());
 
         for(Period period: orderedPeriods) {
@@ -276,6 +275,7 @@ public class PeriodServiceImpl implements PeriodService {
                 period.setGrossMargin(is.getGrossProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                 period.setEbitMargin(is.getOperatingProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                 period.setNetProfitMargin(is.getNetProfit().divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                period.setEbitdaMargin(is.getOperatingProfit().add(cf.getDepAndAmrtExpenses()).divide(is.getRevenue(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
 
                 if(orderedPeriods.size() - i > 3) { // there are at least 4 periods backward
                     BigDecimal revenue = is.getRevenue().add(orderedPeriods.get(i+1).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+2).getIncomeStatement().getRevenue()).add(orderedPeriods.get(i+3).getIncomeStatement().getRevenue());
@@ -286,13 +286,14 @@ public class PeriodServiceImpl implements PeriodService {
                     BigDecimal capex = cf.getCapitalExpenditures().add(orderedPeriods.get(i+1).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+2).getCashFlowStatement().getCapitalExpenditures()).add(orderedPeriods.get(i+3).getCashFlowStatement().getCapitalExpenditures());
                     BigDecimal dividends = cf.getDividendPayments().add(orderedPeriods.get(i+1).getCashFlowStatement().getDividendPayments()).add(orderedPeriods.get(i+2)
                             .getCashFlowStatement().getDividendPayments()).add(orderedPeriods.get(i+3).getCashFlowStatement().getDividendPayments());
-
+                    BigDecimal ebitda = ebit.add(depAmortExp);
                     period.setGrossMarginTTM(grossProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                     period.setEbitMarginTTM(ebit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
+                    period.setEbitdaMarginTTM(ebitda.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                     period.setNetProfitMarginTTM(netProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                     period.setRoe(netProfit.divide(period.getBalanceSheet().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
 
-                    period.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex).add(dividends));
+                    period.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex));
                     period.setCompanyValue(period.getBalanceSheet().getEquity().subtract(period.getBalanceSheet().getIntangibleAssets()));
                 }
 

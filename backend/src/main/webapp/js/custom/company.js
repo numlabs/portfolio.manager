@@ -87,6 +87,9 @@ function setFields(company) {
    $('#description').val(company.description);
    $('#kap-url').val(company.kapUrl);
    $('#website').val(company.website);
+   $('#buy-price').val(company.buyPrice);
+   $('#sell-price').val(company.sellPrice);
+   $('#country-code').val(company.countryCode);
 }
 
 function resetFields() {
@@ -102,6 +105,9 @@ function resetFields() {
    $('#description').val('');
    $('#kap-url').val('');
    $('#website').val('');
+   $('#buy-price').val(0);
+   $('#sell-price').val(0);
+   $('#country-code').val('');
 }
 
 function addCompany() {
@@ -117,6 +123,9 @@ function addCompany() {
     var kapUrl = $('#kap-url').val();
     var id = $('#id').val();
     var website = $('#website').val();
+    var buyPrice = $('#buy-price').val();
+    var sellPrice = $('#sell-price').val();
+    var countryCode = $('#country-code').val();
 
 	if (tickerSymbol == '' || exchange == '0' || price == '' || name == '' || sector == '0' || stockUrl == '') {
 		alert("Please fill all required fields!");
@@ -133,7 +142,10 @@ function addCompany() {
 			"stockUrl": stockUrl,
             "exchange": {"id": exchange},
             "kapUrl": kapUrl,
-            "website": website
+            "website": website,
+            "buyPrice": buyPrice,
+            "sellPrice": sellPrice,
+            "countryCode": countryCode
 		};
 
 		var execUrl = "/portfoliomng/company/add";

@@ -1,6 +1,7 @@
 package com.numlabs.portfoliomanager;
 
-import com.numlabs.portfoliomanager.util.IsYatirimParser;
+import com.numlabs.portfoliomanager.parser.AlphaVantageClient;
+import com.numlabs.portfoliomanager.parser.IsYatirimParser;
 import com.numlabs.portfoliomanager.util.PriceUtil;
 import com.numlabs.portfoliomanager.util.YahooUtils;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +18,10 @@ public class PortfolioManagerApplication {
 		PriceUtil priceUtil = ctx.getBean(PriceUtil.class);
 		YahooUtils yUtil = ctx.getBean(YahooUtils.class);
 		IsYatirimParser isYatirimParser = ctx.getBean(IsYatirimParser.class);
-		//isYatirimParser.parseCompany("KOZAA",2018, "XI_29"); // UFRS  XI_29
+		AlphaVantageClient alphaVantageClient = ctx.getBean(AlphaVantageClient.class);
+
+		//alphaVantageClient.getData("AKSA.IS");
+		//isYatirimParser.parseCompany("ERBOS",2018, "XI_29"); // UFRS  XI_29
 		//isYatirimParser.getBISTPrices();
       //  yUtil.getPriceForStock("ASELS.IS");
      //   priceUtil.parseCompanyPrices("ASELS.IS.csv");

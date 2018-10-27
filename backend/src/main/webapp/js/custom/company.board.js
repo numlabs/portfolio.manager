@@ -117,13 +117,13 @@ function getPeriodData(data) {
     tableRow += "<tr><td>Earnings Date</td>";
 
     for (i = 0; i < data.length; i++) {
-          tableRow += "<td align='right'><b>" + data[i].earningsDate.substring(0,10) + "</b></td>";
+          tableRow += "<td align='right'>" + data[i].earningsDate.substring(0,10) + "</td>";
     }
 
-	tableRow += "<tr><td><b>BALANCE SHEET</b></td>";
+	tableRow += "<tr style='background-color:#999999; color: white'><td><b>BALANCE SHEET</b></td>";
 
 	for (i = 0; i < data.length; i++) {
-	    tableRow += "<td align='right'>---</td>";
+	    tableRow += "<td align='right'></td>";
 	}
 
 	tableRow += "</tr><tr><td><b>Current Assets</b></td>";
@@ -198,6 +198,12 @@ function getPeriodData(data) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].balanceSheet.equity) + "</b></td>";
 	}
 
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Non-controlling interests</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.minorityInterest) + "</td>";
+    }
+
 	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Reatined Earnings</td>";
 
 	for (i = 0; i < data.length; i++) {
@@ -228,11 +234,11 @@ function getPeriodData(data) {
 		tableRow += "<td align='right'>" + formatValue(data[i].balanceSheet.longTermDebt) + "</td>";
 	}
 
-	tableRow += "</tr><tr><td><b>INCOME STATEMENT</b></td>";
+	tableRow += "</tr><tr style='background-color:#999999; color: white'><td><b>INCOME STATEMENT</b></td>";
 
 	for (i = 0; i < data.length; i++) {
-	    tableRow += "<td align='right'></td>";
-	}
+        tableRow += "<td align='right'></td>";
+    }
 
 	tableRow += "</tr><tr><td><b>Revenue</b></td>";
 
@@ -240,16 +246,16 @@ function getPeriodData(data) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.revenue) + "</b></td>";
 	}
 
-	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Abroad (Yearly)</td>";
-
-    for (i = 0; i < data.length; i++) {
-        tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesAbroad) + "</td>";
-    }
-
     tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Local Market (Yearly)</td>";
 
     for (i = 0; i < data.length; i++) {
         tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesLocal) + "</td>";
+    }
+
+	tableRow += "</tr><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Sales Abroad (Yearly)</td>";
+
+    for (i = 0; i < data.length; i++) {
+        tableRow += "<td align='right'>" + formatValue(data[i].incomeStatement.salesAbroad) + "</td>";
     }
 
 	tableRow += "</tr><tr><td><b>Gross Profit</b></td>";
@@ -318,10 +324,10 @@ function getPeriodData(data) {
 		tableRow += "<td align='right'><b>" + formatValue(data[i].incomeStatement.netProfit) + "</b></td>";
 	}
 
-	tableRow += "</tr><tr><td><b>CASH FLOW</b></td>";
+	tableRow += "</tr><tr style='background-color:#999999; color: white'><td><b>CASH FLOW</b></td>";
 
-	for (i = 0; i < data.length; i++) {
-		tableRow += "<td align='right'></td>";
+    for (i = 0; i < data.length; i++) {
+	    tableRow += "<td align='right'></td>";
 	}
 
 	tableRow += "</tr><tr><td><b>Operating Activities Cash</b></td>";
