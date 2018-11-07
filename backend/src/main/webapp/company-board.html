@@ -11,45 +11,97 @@
     </head>
     <body>
 
-        <!-- Menu Bar -->
-        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-            <h5 class="my-0 mr-md-auto font-weight-normal">
-                <a class="p-2 text-dark" style="text-decoration:none" href="/portfoliomng/index.html">Portfolio Manager</a>
-            </h5>
-            <nav class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=BIST">BIST Companies</a> |
-                <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=EU">EU Companies</a> |
-                <a class="p-2 text-dark" href="/portfoliomng/company.html">Company</a> |
-                <a class="p-2 text-dark" href="/portfoliomng/period.html">Period</a> |
+    <!-- Menu Bar -->
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal">
+            <a class="p-2 text-dark" style="text-decoration:none" href="/portfoliomng/index.html">Portfolio Manager</a>
+        </h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=BIST">BIST Companies</a> |
+            <a class="p-2 text-dark" href="/portfoliomng/companies.html?exchange=EU">EU Companies</a> |
+            <a class="p-2 text-dark" href="/portfoliomng/company.html?exchange=EU">Company</a> |
+            <a class="p-2 text-dark" href="/portfoliomng/company-note.html?exchange=EU">Company Note</a> |
 
-                <a class="p-2 text-dark" href="#" id="company-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">????</a>
-                <div class="dropdown-menu" aria-labelledby="company-menu">
-                    <a class="dropdown-item" href="/portfoliomng/company.html?operation=add">Add Company</a>
-                    <a class="dropdown-item" href="/portfoliomng/company.html?operation=edit">Edit Company</a>
-                    <a class="dropdown-item" href="/portfoliomng/period.html?operation=add">Add Period</a>
-                </div> |
+            <a class="p-2 text-dark" href="#" id="period-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Period</a>
+            <div class="dropdown-menu" aria-labelledby="period-menu">
+                <a class="dropdown-item" href="/portfoliomng/period.html">Regular Company Period</a>
+                <a class="dropdown-item" href="/portfoliomng/bank-period.html">Bank Period</a>
+            </div> |
 
-                <a class="p-2 text-dark" href="/portfoliomng/settings.html">Settings</a>
-            </nav>
+            <a class="p-2 text-dark" href="/portfoliomng/settings.html">Settings</a>
+        </nav>
 
-            <div class="form-inline my-1 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="symbol.exchange" aria-label="Search" id="company-search-text">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchCompany()">Search</button>
-            </div>
-
+        <div class="form-inline my-1 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="symbol.exchange" aria-label="Search" id="company-search-text">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="searchCompany()">Search</button>
         </div>
+
+    </div>
 
         <div class="container">
 
-            <table class="table table-striped">
-                <thead>
-                    <tr id="period-table-headers"></tr>
-                </thead>
-                <tbody id="period-table-body"/>
-            </table>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-header">
+                            <b><label id="title-symbol" name="title-symbol"/></b><br/>
+                        </div>
+                        <ul class="list-group list-group-flush"  id="first-row">
+                            <li class="list-group-item">Price: <b><span id="share-price"/></b></li>
+                            <li class="list-group-item">Shares Outs.: <b><span id="shares"/></b></li>
+                        </ul>
+                    </div> <br/>
+                </div>
+                <div class="col-sm-3">
+                    <div class="card" style="width: 18rem;">
 
-        </div>
+                        <ul class="list-group list-group-flush" id="second-row">
+                            <li class="list-group-item">Market Cap: &nbsp;&nbsp; <b><span id="market-cap"/></b></li>
+                            <li class="list-group-item">Ent. Value: &nbsp;&nbsp;<b><span id="ent-value"/></b></li>
+                            <li class="list-group-item">Equity: &nbsp;&nbsp;<b><span id="equity"/></b></li>
+                            <li class="list-group-item">Net Cash: &nbsp;&nbsp;<b><span id="money-generated"/></b></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-header">
+                            <b><label id="notes-title" name="title-symbol"/>Notes</b><br/>
+                        </div>
+                        <ul class="list-group list-group-flush" >
+                            <li class="list-group-item">
+                                <div style="overflow-x:auto;">
 
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr id="note-table-headers">
+                                                <th scope="col">Title</th>
+                                                <th scope="col">Date</th>
+                                                <th scope="col">Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="notes"/>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class="list-group-item">Description: <b><span id="description"/></b></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div class="row">
+
+                <div style="overflow-x:auto;">
+                    <table class="table table-striped" style="width:auto" >
+                        <thead>
+                            <tr id="period-table-headers"></tr>
+                        </thead>
+                        <tbody id="period-table-body"/>
+                    </table>
+                </div>
+            </div>
         <script src="portfoliomng/js/jquery-3.2.1.js"></script>
         <script src="portfoliomng/js/popper.min.js"></script>
         <script src="portfoliomng/js/bootstrap.min.js"></script>

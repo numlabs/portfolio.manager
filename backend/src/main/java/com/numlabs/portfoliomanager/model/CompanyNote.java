@@ -16,7 +16,7 @@ public class CompanyNote implements Serializable {
     private Long id;
 
     @Column
-    private String name;
+    private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", referencedColumnName = "ID")
@@ -38,12 +38,12 @@ public class CompanyNote implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Company getCompany() {

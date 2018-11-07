@@ -66,6 +66,9 @@ public class IncomeStatement implements Serializable {
     @Column(name = "net_profit")
     private BigDecimal netProfit;
 
+    @Column(name = "minority_interest")
+    private BigDecimal minorityInterest;
+
     public IncomeStatement() {
         this.id = null;
         this.revenue = new BigDecimal(0);
@@ -83,6 +86,15 @@ public class IncomeStatement implements Serializable {
         this.netProfit = new BigDecimal(0);
         this.salesAbroad = new BigDecimal(0);
         this.salesLocal = new BigDecimal(0);
+        this.minorityInterest = new BigDecimal(0);
+    }
+
+    public BigDecimal getMinorityInterest() {
+        return minorityInterest;
+    }
+
+    public void setMinorityInterest(BigDecimal minorityInterest) {
+        this.minorityInterest = minorityInterest;
     }
 
     public BigDecimal getSalesAbroad() {

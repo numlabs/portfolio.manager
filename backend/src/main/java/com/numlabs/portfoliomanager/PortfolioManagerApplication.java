@@ -21,7 +21,7 @@ public class PortfolioManagerApplication {
 		AlphaVantageClient alphaVantageClient = ctx.getBean(AlphaVantageClient.class);
 
 		//alphaVantageClient.getData("AKSA.IS");
-		//isYatirimParser.parseCompany("ERBOS",2018, "XI_29"); // UFRS  XI_29
+		//isYatirimParser.parseCompany("ACSEL",2018, "XI_29"); // UFRS  XI_29
 		//isYatirimParser.getBISTPrices();
       //  yUtil.getPriceForStock("ASELS.IS");
      //   priceUtil.parseCompanyPrices("ASELS.IS.csv");

@@ -125,7 +125,6 @@ public class CompanyServiceImpl implements CompanyService {
         company.setEquity(periods.get(0).getBalanceSheet().getEquity());
         company.setCashEquivalents(periods.get(0).getBalanceSheet().getCashAndEquivalents());
         company.setCompanyValue(periods.get(0).getCompanyValue());
-        company.setMoneyGenerated(periods.get(0).getMoneyGenerated());
         company.setEbitMargin(periods.get(0).getEbitMarginTTM());
         company.setEbitdaMargin(periods.get(0).getEbitdaMarginTTM());
         company.setGrossMargin(periods.get(0).getGrossMarginTTM());
@@ -137,6 +136,7 @@ public class CompanyServiceImpl implements CompanyService {
         company.setEbitLastPeriod(periods.get(0).getIncomeStatement().getOperatingProfit());
         company.setBookValue(periods.get(0).getBalanceSheet().getEquity().subtract(periods.get(0).getBalanceSheet().getIntangibleAssets()));
         company.setMinorityInterest(periods.get(0).getBalanceSheet().getMinorityInterest());
+        company.setMoneyGenerated(periods.get(0).getMoneyGenerated());
     }
 
     @Override

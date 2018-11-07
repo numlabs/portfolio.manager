@@ -62,6 +62,9 @@ public class Company implements Serializable {
     @Column(name="country_code")
     private String countryCode;
 
+    @Column(name="status")
+    private String status;
+
     // calculated fields
 
     @Column(name="price_date")
@@ -118,6 +121,10 @@ public class Company implements Serializable {
     @Column(name = "minority_interest")
     private BigDecimal minorityInterest;
 
+    @Column(name="price_data")
+    @Basic(fetch = FetchType.LAZY)
+    private String priceData;
+
     // transient fields
 
     @Transient
@@ -144,8 +151,47 @@ public class Company implements Serializable {
     @Transient
     private List<CompanyNote> companyNotes;
 
+    @Transient
+    private BigDecimal ev;
+
+    @Transient
+    private BigDecimal marketCap;
+
     public Company() {
         this.sharesOutstanding = new BigDecimal(0);
+        this.status = "N/A";
+    }
+
+    public String getPriceData() {
+        return priceData;
+    }
+
+    public void setPriceData(String priceData) {
+        this.priceData = priceData;
+    }
+
+    public BigDecimal getEv() {
+        return ev;
+    }
+
+    public void setEv(BigDecimal ev) {
+        this.ev = ev;
+    }
+
+    public BigDecimal getMarketCap() {
+        return marketCap;
+    }
+
+    public void setMarketCap(BigDecimal marketCap) {
+        this.marketCap = marketCap;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public BigDecimal getBuyPrice() {

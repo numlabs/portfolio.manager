@@ -45,8 +45,8 @@ function addCompanyToTable(data) {
 
 	tableRow += formatValue(data.evToCv) + "</td> <td align='right'>";
 	tableRow += formatPercentValue(data.roe) + "</td> <td align='right'>";
-    tableRow += formatPercentValue(data.grossMargin) + "</td> <td align='right'>";
-    tableRow += formatPercentValue(data.ebitMargin) + "</td> <td align='right'>";
+    tableRow += formatPercentValue(data.grossMargin) + "</td> <td align='right'><b>";
+    tableRow += formatPercentValue(data.ebitMargin) + "</b></td> <td align='right'>";
     tableRow += formatPercentValue(data.ebitdaMargin) + "</td> <td align='right'>";
     tableRow += formatPercentValue(data.netProfitMargin) + "</td> <td align='right'> ";
     tableRow += ((data.ebitGrowth == null)? '' : data.ebitGrowth) + "</td> <td align='left'> ";

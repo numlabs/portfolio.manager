@@ -4,6 +4,11 @@ import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.PortfolioManagerException;
 import com.numlabs.portfoliomanager.model.*;
 import com.numlabs.portfoliomanager.repository.PeriodRepository;
+import com.numlabs.portfoliomanager.util.PriceUtil;
+import jdk.nashorn.internal.parser.JSONParser;
+import netscape.javascript.JSObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +31,31 @@ public class PeriodServiceImpl implements PeriodService {
     @Autowired
     private CompanyService companyService;
 
+    @Autowired
+    private PriceUtil priceUtil;
+
     @Override
     public void updateIndicators(Company company) {
         if(!company.getIndustrySector().getCode().equals(Constants.BANK_CODE)) {
             setPeriodIndicators(findPeriodsOfCompany(company));
         }
         // TODO: update BANKs indicators
+    }
+
+    @Override
+    public Period findPeriodById(Long id) {
+        return periodRepository.findById(id);
+    }
+
+    @Override
+    public void calculatePeriodsPrices(Company company) {
+        List<Period> periods = findPeriodsOfCompany(company);
+
+        JSONObject prices = new JSONObject(company.getPriceData());
+
+        if(prices != null && periods != null && !periods.isEmpty()) {
+            priceUtil.calculatePeriodsPriceMargins(periods, prices);
+        }
     }
 
     @Override
@@ -293,7 +317,7 @@ public class PeriodServiceImpl implements PeriodService {
                     period.setNetProfitMarginTTM(netProfit.divide(revenue,4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
                     period.setRoe(netProfit.divide(period.getBalanceSheet().getEquity(), 4, BigDecimal.ROUND_HALF_UP).multiply(hundred));
 
-                    period.setMoneyGenerated(netProfit.add(depAmortExp).subtract(capex));
+                    period.setMoneyGenerated(netProfit.add(depAmortExp)); // Not that Capex is a negative number and Dep&Amr a positive
                     period.setCompanyValue(period.getBalanceSheet().getEquity().subtract(period.getBalanceSheet().getIntangibleAssets()));
                 }
 
@@ -375,6 +399,7 @@ public class PeriodServiceImpl implements PeriodService {
         this.periodRepository.removeBalanceSheetOfPeriod(period);
         this.periodRepository.removeIncomeStatementOfPeriod(period);
         this.periodRepository.removeCashFlowStatementOfPeriod(period);
+        this.periodRepository.removeBankStatementOfPeriod(period);
         this.periodRepository.remove(period);
     }
 

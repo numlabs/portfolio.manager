@@ -30,4 +30,8 @@ public interface PeriodService {
     void addBankPeriod(Period period) throws PortfolioManagerException;
 
     void updateIndicators(Company company);
+
+    Period findPeriodById(Long id);
+
+    void calculatePeriodsPrices(Company company);
 }

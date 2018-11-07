@@ -122,7 +122,7 @@ public class PeriodController {
             return new ResponseEntity<>("Period already exist.", HttpStatus.EXPECTATION_FAILED);
         }
 
-        if(!period.getName().matches("20[1-9]{2}_Q[1-4]{1}")) {
+        if(!period.getName().matches("20[0-9]{2}_Q[1-4]{1}")) {
             return new ResponseEntity<>("Name format is not in correct format.", HttpStatus.EXPECTATION_FAILED);
         }
 
@@ -176,7 +176,7 @@ public class PeriodController {
                     HttpStatus.PRECONDITION_FAILED);
         }
 
-        Period existingPeriod = periodService.findPeriodOfCompanyByPeriodName(company, period.getName());
+        Period existingPeriod = periodService.findPeriodById(period.getId());
 
         if(existingPeriod == null) {
             return new ResponseEntity<String>("Period does not exist.", HttpStatus.OK);

@@ -1,3 +1,6 @@
+var OPER_MODE_ADD = "add";
+var OPER_MODE_EDIT = "edit";
+
 var parseQueryString = function(url) {
  	var urlParams = {};
 
@@ -11,10 +14,7 @@ var parseQueryString = function(url) {
 $(document).ready(function() {
 	var urlToParse = location.search;
 	var urlParams = parseQueryString(urlToParse);
-
-    $("#delete-btn").hide();
-    $("#reset-company-btn").hide();
-    $("#rm-com-periods-btn").hide();
+	$('#file-upload-section').hide();
 
 	$.get("/portfoliomng/exchange/all", function(data, status) {
         if (status == 'success') {
@@ -27,7 +27,7 @@ $(document).ready(function() {
             $('#exchange').append(exchanges);
             $('#search-exchange').append(exchanges);
          } else {
-            alert("No exchanges found registered!");
+            alert("There are no defined exchanges!");
         }
     });
 
@@ -41,119 +41,83 @@ $(document).ready(function() {
 
             $('#industry-sector').append(sectors);
         } else {
-            alert("No industry sectors found registered!");
+            alert("There are no defined industry sectors!");
         }
     });
-
-	if(urlParams.operation == 'add') {
-	    $('#form-title').html("Add Company");
-	} else if(urlParams.operation == 'edit') { //FIXME; this part could no be used
-        $.get("/portfoliomng/company/" + urlParams.id, function(data, status) {
-            if (status == 'success') {
-               if(data.name != null && data.name != undefined) {
-                    setTimeout(function(){setFields(data) }, 1000);
-                    $('#form-title').html("Edit Company");
-                    $("#delete-btn").show();
-               } else {
-                    alert("Company could not be found.");
-               }
-            } else {
-               alert("No exchanges found registered!");
-            }
-        }).fail(function(data, status) {
-            alert(data.responseJSON.description);
-        });
-    } else if(urlParams.operation == 'delete') { //FIXME; this part could not be used
-        $('#form-title').html("Delete Company");
-        $("#delete-btn").show();
-    } else if(urlParams.operation == 'view') { //FIXME; this part could not be used
-        $('#form-title').html("Company");
-    }
-
-    $('#mode').val(urlParams.operation);
 });
 
 // used when updating company
 function setFields(company) {
-   $('#name').val(company.name);
-   $('#ticker-symbol').val(company.tickerSymbol);
-   $('#industry-sector').val(company.industrySector.id);
-   $('#price').val(company.price);
-   $('#ev-ebit-min').val(company.evToEbitMin);
-   $('#ev-ebit-max').val(company.evToEbitMax);
-   $('#stock-url').val(company.stockUrl);
-   $('#exchange').val(company.exchange.id);
-   $('#id').val(company.id);
-   $('#description').val(company.description);
-   $('#kap-url').val(company.kapUrl);
-   $('#website').val(company.website);
-   $('#buy-price').val(company.buyPrice);
-   $('#sell-price').val(company.sellPrice);
-   $('#country-code').val(company.countryCode);
+	$('#name').val(company.name);
+	$('#ticker-symbol').val(company.tickerSymbol);
+	$('#industry-sector').val(company.industrySector.id);
+	$('#price').val(company.price);
+	$('#ev-ebit-min').val(company.evToEbitMin);
+	$('#ev-ebit-max').val(company.evToEbitMax);   
+	$('#exchange').val(company.exchange.id);
+	$('#id').val(company.id);
+	$('#description').val(company.description);
+	$('#stock-url').val(company.stockUrl);
+	$('#kap-url').val(company.kapUrl);
+	$('#website').val(company.website);
+	$('#buy-price').val(company.buyPrice);
+	$('#sell-price').val(company.sellPrice);
+	$('#country-code').val(company.countryCode);
+	
+	$('#mode').val(OPER_MODE_EDIT);
+	$('#file-upload-section').show();
 }
 
 function resetFields() {
-   $('#name').val('');
-   $('#ticker-symbol').val('');
-   $('#industry-sector').val(0);
-   $('#price').val('');
-   $('#ev-ebit-min').val('');
-   $('#ev-ebit-max').val('');
-   $('#stock-url').val('');
-   $('#exchange').val(0);
-   $('#id').val(0);
-   $('#description').val('');
-   $('#kap-url').val('');
-   $('#website').val('');
-   $('#buy-price').val(0);
-   $('#sell-price').val(0);
-   $('#country-code').val('');
+	$('#name').val('');
+	$('#ticker-symbol').val('');
+	$('#industry-sector').val(0);
+	$('#price').val('');
+	$('#ev-ebit-min').val('');
+	$('#ev-ebit-max').val('');
+	$('#stock-url').val('');
+	$('#exchange').val(0);
+	$('#id').val(0);
+	$('#description').val('');
+	$('#kap-url').val('');
+	$('#website').val('');
+	$('#buy-price').val(0);
+	$('#sell-price').val(0);
+	$('#country-code').val('');
+
+	$('#mode').val(OPER_MODE_ADD);
+	$('#file-upload-section').hide();
 }
 
 function addCompany() {
-    var name = $('#name').val();
-    var tickerSymbol = $('#ticker-symbol').val();
-    var price = $('#price').val();
-    var evEbitMin = $('#ev-ebit-min').val();
-    var evEbitMax = $('#ev-ebit-max').val();
-    var exchange = $('#exchange').val();
-	var sector = $('#industry-sector').val();
-    var stockUrl = $('#stock-url').val();
-	var description = $('#description').val();
-    var kapUrl = $('#kap-url').val();
-    var id = $('#id').val();
-    var website = $('#website').val();
-    var buyPrice = $('#buy-price').val();
-    var sellPrice = $('#sell-price').val();
-    var countryCode = $('#country-code').val();
-
-	if (tickerSymbol == '' || exchange == '0' || price == '' || name == '' || sector == '0' || stockUrl == '') {
-		alert("Please fill all required fields!");
-	} else {
-		var company = {
-		    "id" : id,
-			"name" : name,
-			"industrySector" : {"id": sector},
-			"description" : description,
-			"tickerSymbol" : tickerSymbol,
-			"price" : price,
-			"evToEbitMax" : evEbitMax,
-			"evToEbitMin" : evEbitMin,
-			"stockUrl": stockUrl,
-            "exchange": {"id": exchange},
-            "kapUrl": kapUrl,
-            "website": website,
-            "buyPrice": buyPrice,
-            "sellPrice": sellPrice,
-            "countryCode": countryCode
+	var company = {
+		    "id" : $('#id').val(),
+			"name" : $('#name').val().trim(),
+			"industrySector" : {
+					"id": $('#industry-sector').val()
+				},
+			"description" : $('#description').val().trim(),
+			"tickerSymbol" : $('#ticker-symbol').val().trim(),
+			"price" : $('#price').val().trim(),
+			"evToEbitMax" : $('#ev-ebit-max').val().trim(),
+			"evToEbitMin" : $('#ev-ebit-min').val().trim(),
+			"stockUrl": $('#stock-url').val().trim(),
+            "exchange": {
+					"id": $('#exchange').val()
+				},
+            "kapUrl": $('#kap-url').val().trim(),
+            "website": $('#website').val().trim(),
+            "buyPrice": $('#buy-price').val().trim(),
+            "sellPrice": $('#buy-price').val().trim(),
+            "countryCode": $('#country-code').val().trim()
 		};
-
+	
+	if(isValid(company)) {
 		var execUrl = "/portfoliomng/company/add";
 		var oprMode = $('#mode').val();
 
-		if(oprMode == "edit") {
+		if(oprMode == OPER_MODE_EDIT) {
 		    execUrl = "/portfoliomng/company/update";
-		    company.id = $('#id').val();
 		}
 
 		jQuery.ajax({
@@ -165,29 +129,72 @@ function addCompany() {
 			complete : function(data) {
 				if (data.status == 200) {
 					alert("The operation completed successfully.");
-					resetFields();
+					//resetFields();
+					$('#file-upload-section').show();
 				}
 			},
 			error: function(data, status) {
 			    if (data.status != 200) {
 			        alert(data.responseText + " Status: " + status);
+			        $('#file-upload-section').hide();
 			    }
 			}
 		});
 	}
 }
 
+function isValid(company) {
+	var message = "";
+	
+	if(company.name == '') {
+		message += " Name fields is required. \n";
+	}
+	
+	if(company.industrySector.id == 0) {
+		message += " Industry sector fields is required. \n";
+	}
+
+	if(company.tickerSymbol == '') {
+		message += " Ticker symbol fields is required. \n";
+	}
+
+	if(company.price == '') {
+		message += " Price fields is required. \n";
+	}
+
+	if(company.exchange.id == 0) {
+		message += " Exchange fields is required. \n";
+	}
+
+	if(company.website == '') {
+		message += " Website fields is required. \n";
+	}
+
+	if(message == '') {
+		return true;
+	} else {
+		alert(message);
+
+		return false;
+	}
+}
+
 function removeCompany() {
-    $.get("/portfoliomng/company/remove/" + $('#id').val(), function(data, status) {
-       if (status == 'success') {
-           alert("The operation completed successfully.");
-           $("#delete-btn").hide();
-           $("#submit-btn").html("Add Company");
-           $("#rm-com-periods-btn").hide();
-       }
-   }).fail(function(data, status) {
-        alert("The company could not be removed, status: " + status);
-   });
+	var id = $('#id').val();
+
+	if(id != 0) {
+		$.get("/portfoliomng/company/remove/" + $('#id').val(), function(data, status) {
+			if (status == 'success') {
+				alert("Company was removed successfully.");
+
+				$("#submit-btn").html("Add Company");
+				$('#mode').val(OPER_MODE_ADD);
+				resetFields();
+			}
+	   }).fail(function(data, status) {
+			alert("The company could not be removed, status: " + status);
+	   });
+	}
 }
 
 function searchCompany() {
@@ -199,44 +206,84 @@ function searchCompany() {
     } else {
         resetFields();
 
-        $("#delete-btn").hide();
-        $("#reset-company-btn").hide();
         $("#submit-btn").html("Add Company");
-        $('#mode').val("add");
+        $('#mode').val(OPER_MODE_ADD);
 
         $.get("/portfoliomng/company/search/" + tickerSymbol + "." + exchange, function(data, status) {
             if (status == 'success') {
                 if(data.name != null && data.name != undefined) {
                     setFields(data);
-                    $("#delete-btn").show();
-                    $("#reset-company-btn").show();
-                    $("#rm-com-periods-btn").show();
+                
                     $("#submit-btn").html("Update");
-                    $('#mode').val("edit");
+                    $('#mode').val(OPER_MODE_EDIT);
+                    $('#file-upload-section').show();
                 }
             }
         }).fail(function(data, status) {
             alert(data.responseJSON.description);
+            $('#file-upload-section').hide();
         });
     }
 }
 
-function resetCompany() {
-    $.get("/portfoliomng/company/reset/" + $('#id').val(), function(data, status) {
-       if (status == 'success') {
-           alert("The operation completed successfully.");
-       }
-    }).fail(function(data, status) {
-        alert("Reaset failed, status: " + status);
-    });
-}
-
 function removeCompanyPeriods() {
-    $.get("/company/remove/periods/" + $('#id').val(), function(data, status) {
+    $.get("/portfoliomng/company/remove/periods/" + $('#id').val(), function(data, status) {
        if (status == 'success') {
            alert("Operation completed successfully.");
        }
     }).fail(function(data, status) {
         alert("Operation failed, status: " + status);
     });
+}
+
+function calculatePeriodPrices() {
+    var id = $('#id').val();
+
+    if(id == '' || id == 0) {
+        alert("Please select a company.");
+        return;
+    }
+
+    $.get("/portfoliomng/company/periods/prices/calculate/" + $('#id').val(), function(data, status) {
+       if (status == 'success') {
+           alert("Operation completed successfully.");
+       }
+    }).fail(function(data, status) {
+        alert("Operation failed, status: " + status);
+    });
+}
+
+function uploadPricesFile() {
+    var fileInput = document.getElementById("prices-file");
+
+    if (fileInput.files.length == 0) {
+        alert("Please choose a file");
+        return;
+    }
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function() {
+        if (xhr.status == 200) {
+            //setTimeout(function(){alert("Parsing completed successfully.")}, 1000);
+        } else {
+            alert("Error! Parsing failed");
+        }
+    };
+
+    xhr.onerror = function() {
+        alert("Error! Upload failed. Can not connect to server.");
+    };
+
+     xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            alert("Upload completed " + xhr.response);
+        }
+      }
+
+    xhr.open("POST", "/portfoliomng/company/prices/file/upload", true);
+
+    var formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("id", $('#id').val());
+    xhr.send(formData);
 }

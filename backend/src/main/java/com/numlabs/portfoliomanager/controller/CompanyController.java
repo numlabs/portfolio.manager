@@ -1,6 +1,5 @@
 package com.numlabs.portfoliomanager.controller;
 
-import com.numlabs.portfoliomanager.Constants;
 import com.numlabs.portfoliomanager.model.Company;
 import com.numlabs.portfoliomanager.model.Exchange;
 import com.numlabs.portfoliomanager.model.IndustrySector;
@@ -13,13 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,6 +44,7 @@ public class CompanyController {
         if(company != null) {
             return new ResponseEntity<> (String.format("The company with the %s already exist.", newCompany.getTickerSymbol()), HttpStatus.CONFLICT);
         }
+
         newCompany.setId(null);
         newCompany.setPriceDate(new Date());
         companyService.persist(newCompany);
@@ -71,7 +72,7 @@ public class CompanyController {
         IndustrySector newSector = industrySectorService.getById(updCompany.getIndustrySector().getId());
         updCompany.setIndustrySector(newSector);
 
-        if((!company.isBank() && newSector.getCode().equals(Constants.BANK_CODE)) || (company.isBank() && !newSector.getCode().equals(Constants.BANK_CODE))) {
+        if((!company.isBank() && updCompany.isBank()) || (company.isBank() && !updCompany.isBank())) {
             // there is a change in Company type, banks are different animals so they have special period types
             companyService.update(updCompany, true);
         } else {
@@ -151,6 +152,10 @@ public class CompanyController {
         List<Company> selectedBanks = new ArrayList<>();
 
         for(Company company: companies) {
+            if(company.getEbitMargin() == null) {
+                company.setEbitMargin(new BigDecimal(0));
+            }
+
             if(company.getSharesOutstanding().equals(BigDecimal.valueOf(0))) {
                 if(company.isBank()) {
                     selectedBanks.add(company);
@@ -192,12 +197,14 @@ public class CompanyController {
             BigDecimal price = company.getPrice().multiply(company.getSharesOutstanding());
             company.setPe(price.divide(company.getNetProfit(), 2, RoundingMode.HALF_UP));
             company.setPb(price.divide(company.getBookValue(), 2, RoundingMode.HALF_UP));
+            company.setMarketCap(price);
 
             if(company.isBank()) {
                 company.setEvToEbit(new BigDecimal(0));
                 company.setEvToMg(new BigDecimal(0));
                 company.setEvToCv(new BigDecimal(0));
                 company.setEvToEbitLastPeriod(new BigDecimal(0));
+                company.setEbitMargin(new BigDecimal(0));
                 selectedBanks.add(company);
             } else {
                 BigDecimal ev = price.add(company.getTotalDebt()).subtract(company.getCashEquivalents()).add(company.getMinorityInterest());
@@ -205,11 +212,13 @@ public class CompanyController {
                 company.setEvToMg(ev.divide(company.getMoneyGenerated(), 2, RoundingMode.HALF_UP));
                 company.setEvToCv(ev.divide(company.getCompanyValue(), 2, RoundingMode.HALF_UP));
                 company.setEvToEbitLastPeriod(ev.divide(company.getEbitLastPeriod().multiply(new BigDecimal(4)), 2, RoundingMode.HALF_UP));
+                company.setEv(ev);
                 selected.add(company);
             }
         }
 
-        selected = selected.stream().sorted(Comparator.comparing(Company::getEvToMg)).collect(Collectors.toList());
+        selected = selected.stream().sorted(Comparator.comparing(Company::getEbitMargin)).collect(Collectors.toList());
+        Collections.reverse(selected);
         selectedBanks = selectedBanks.stream().sorted(Comparator.comparing(Company::getPe)).collect(Collectors.toList());
         selected.addAll(selectedBanks);
 
@@ -227,9 +236,56 @@ public class CompanyController {
         List<Period> periods = periodService.findPeriodsOfCompany(company);
 
         company.setPeriods(periods);
+        BigDecimal price = company.getPrice().multiply(company.getSharesOutstanding()).setScale(0, RoundingMode.HALF_UP);
 
+        if(company.isBank()) {
+            company.setEv(new BigDecimal(0));
+        } else {
+            BigDecimal ev = price.add(company.getTotalDebt()).subtract(company.getCashEquivalents()).add(company.getMinorityInterest());
+            company.setEv(ev);
+        }
+
+        company.setMarketCap(price);
         periods.stream().forEach((p) ->{p.setCompany(null);}); // eliminate serializing issues
 
         return new ResponseEntity<> (company, HttpStatus.OK);
     }
- }
+
+    @PostMapping("/company/prices/file/upload")
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("id") Long companyId) {
+        Company company = companyService.findCompany(companyId);
+
+        if(company == null) {
+            return new ResponseEntity<> ("Company could not be found", HttpStatus.NOT_FOUND);
+        }
+
+        String line;
+        StringBuilder result = new StringBuilder();
+
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            while ( (line = reader.readLine()) != null) {
+                result.append(line);
+            }
+            company.setPriceData(result.toString());
+            companyService.update(company);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>("", HttpStatus.OK);
+    }
+
+    @RequestMapping("company/periods/prices/calculate/{id}")
+    public ResponseEntity<Company> calculatePeriodsPrices(@PathVariable Long id) {
+        Company company = companyService.findCompany(id);
+
+        if(company == null) {
+            return new ResponseEntity<> (new Company(), HttpStatus.NOT_FOUND);
+        }
+
+        periodService.calculatePeriodsPrices(company);
+
+        return new ResponseEntity<> (company, HttpStatus.OK);
+    }
+
+}

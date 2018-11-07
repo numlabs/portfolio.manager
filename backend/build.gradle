@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.3.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE")
     }
 }
 
@@ -16,7 +16,6 @@ apply plugin: 'war'
 
 group 'com.numlabs'
 version '0.0.1'
-
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

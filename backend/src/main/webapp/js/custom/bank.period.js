@@ -31,21 +31,21 @@ $(document).ready(function() {
 });
 
 function addPeriod() {
-    var name = $('#name').val();
-    var tickerSymbol = $('#ticker-symbol').val();
-    var earningsDate = $('#earnings-date').val();
-    var exchange = $('#exchange').val();
-	var shares = $('#shares-outstanding').val();
-	var netIncome = $('#n-income').val();
-    var assets = $('#assets').val();
-    var intangibleAssets =  $('#i-assets').val();
-    var liabilities = $('#liabilities').val();
-    var equity =  $('#equity').val();
-    var iIncome = $('#i-income').val();
-    var iExpenses = $('#i-expenses').val();
-    var loans = $('#loans').val();
-    var deposits =  $('#deposits').val();
-    var dividends = $('#dividends').val();
+    var name = $('#name').val().replace(/[,|.]/g, '').trim();
+    var tickerSymbol = $('#ticker-symbol').val().replace(/[,|.]/g, '').trim();
+    var earningsDate = $('#earnings-date').val().replace(/[,|.]/g, '').trim();
+    var exchange = $('#exchange').val().replace(/[,|.]/g, '').trim();
+	var shares = $('#shares-outstanding').val().replace(/[,|.]/g, '').trim();
+	var netIncome = $('#n-income').val().replace(/[,|.]/g, '').trim();
+    var assets = $('#assets').val().replace(/[,|.]/g, '').trim();
+    var intangibleAssets =  $('#i-assets').val().replace(/[,|.]/g, '').trim();
+    var liabilities = $('#liabilities').val().replace(/[,|.]/g, '').trim();
+    var equity =  $('#equity').val().replace(/[,|.]/g, '').trim();
+    var iIncome = $('#i-income').val().replace(/[,|.]/g, '').trim();
+    var iExpenses = $('#i-expenses').val().replace(/[,|.]/g, '').trim();
+    var loans = $('#loans').val().replace(/[,|.]/g, '').trim();
+    var deposits =  $('#deposits').val().replace(/[,|.]/g, '').trim();
+    var dividends = $('#dividends').val().replace(/[,|.]/g, '').trim();
 
 	if (tickerSymbol == '' || exchange == '0' || name == '' || shares == '' || netIncome == '' || assets == '' || liabilities == '' ) {
 		alert("Please fill all required fields!");
@@ -94,7 +94,7 @@ function addPeriod() {
 			contentType : "application/json; charset=utf-8",
 			complete : function(data) {
 				if (data.status == 200) {
-					alert("The operation completed successfully.");
+					alert("The operation completed successfully. Responded with " + data.responseText);
 				} else if (data.status == 417) {
                     alert(data.responseText);
                 }

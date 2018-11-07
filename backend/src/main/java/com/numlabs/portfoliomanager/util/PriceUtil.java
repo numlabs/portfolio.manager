@@ -6,20 +6,23 @@ import com.numlabs.portfoliomanager.model.PricingPeriod;
 import com.numlabs.portfoliomanager.service.CompanyService;
 import com.numlabs.portfoliomanager.service.PeriodService;
 import com.numlabs.portfoliomanager.service.PricingPeriodService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.io.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Transactional
 public class PriceUtil {
 
     @Autowired
@@ -30,6 +33,85 @@ public class PriceUtil {
 
     @Autowired
     private PeriodService periodService;
+
+    private final String SERIES_ROOT = "Time Series (Daily)";
+    private final String KEY_OPEN = "1. open";
+    private final String KEY_HIGH = "2. high";
+    private final String KEY_LOW = "3. low";
+    private final String KEY_CLOSE = "4. close";
+    private final String KEY_VOLUME = "5. volume";
+
+    public void calculatePeriodsPriceMargins(List<Period> periods, JSONObject prices) {
+        List<DailyStockPrice> dailyPriceData = getDayStockPrices(prices);
+        Collections.reverse(periods);
+
+        for (int i=0; i< periods.size(); i++) {
+            LocalDate startDate = periods.get(i).getEarningsDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate endDate = null;
+
+            if(i+1 < periods.size()) {
+                endDate = periods.get(i+1).getEarningsDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } else {
+                endDate = LocalDate.now();
+            }
+
+            BigDecimal lowerPrice = new BigDecimal(Integer.MAX_VALUE);
+            BigDecimal higherPrice = new BigDecimal(Integer.MIN_VALUE);
+            boolean periodChanged = false;
+            BigDecimal averagePrice = new BigDecimal(0);
+            int priceDays = 0;
+
+            for(DailyStockPrice dPrice: dailyPriceData) {
+                if(dPrice.getDay().isAfter(startDate) && dPrice.getDay().isBefore(endDate)) {
+                    if(lowerPrice.compareTo(dPrice.getLow()) > 0 && dPrice.getLow().intValue() != 0) {
+                        lowerPrice = dPrice.getLow();
+                        periodChanged = true;
+                    }
+
+                    if(higherPrice.compareTo(dPrice.getHigh()) < 0 && dPrice.getHigh().intValue() != 0) {
+                        higherPrice = dPrice.getHigh();
+                        periodChanged = true;
+                    }
+                    averagePrice = averagePrice.add(dPrice.getLow().add(dPrice.getHigh()).divide(new BigDecimal(2),4, BigDecimal.ROUND_HALF_UP));
+                    priceDays++;
+                }
+            }
+
+            if(periodChanged) {
+                periods.get(i).setLowerPrice(lowerPrice);
+                periods.get(i).setHigherPrice(higherPrice);
+                periods.get(i).setFairPrice(averagePrice.divide(new BigDecimal(priceDays), 4, BigDecimal.ROUND_HALF_UP));
+                periodService.update(periods.get(i));
+            }
+        }
+    }
+
+    private List<DailyStockPrice> getDayStockPrices(JSONObject prices) {
+        List<String> days = new ArrayList<>(prices.getJSONObject(SERIES_ROOT).keySet());
+        days = days.stream().sorted().collect(Collectors.toList());
+        List<DailyStockPrice> dailyPriceData = new ArrayList<>(days.size());
+        JSONObject rawElements = prices.getJSONObject(SERIES_ROOT);
+
+        for(int i = 0; i < days.size(); i++) {
+            String[] dateElem = days.get(i).split("-");
+            LocalDate date = LocalDate.of(Integer.valueOf(dateElem[0]),Integer.valueOf(dateElem[1]), Integer.valueOf(dateElem[2]));
+           // JSONArray tempObjecta = prices.getJSONArray(days.get(i));
+            JSONObject tempObject = rawElements.getJSONObject(days.get(i));
+            try {
+                dailyPriceData.add(new DailyStockPrice(date,
+                        new BigDecimal(tempObject.getString(KEY_OPEN)),
+                        new BigDecimal(tempObject.getString(KEY_HIGH)),
+                        new BigDecimal(tempObject.getString(KEY_LOW)),
+                        new BigDecimal(tempObject.getString(KEY_CLOSE)),
+                        new BigDecimal(tempObject.getString(KEY_VOLUME))
+                ));
+            } catch (NumberFormatException n) {
+                System.out.println(tempObject);
+            }
+        }
+
+        return  dailyPriceData;
+    }
 
     public void parseCompanyPrices(String filePath) {
         String symbol = "ASELS";
@@ -50,7 +132,7 @@ public class PriceUtil {
                LocalDate date = LocalDate.of(Integer.valueOf(dateElem[0]),Integer.valueOf(dateElem[1]), Integer.valueOf(dateElem[2]));
 
                try {
-                   prices.add(new DailyStockPrice(Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+                   prices.add(new DailyStockPrice(date,
                            new BigDecimal(elements[1]),
                            new BigDecimal(elements[2]),
                            new BigDecimal(elements[3]),
@@ -60,7 +142,6 @@ public class PriceUtil {
                } catch (NumberFormatException n) {
                    System.out.println(line);
                }
-
            }
 
            prices = prices.stream().sorted((o1, o2)-> o1.getDay().compareTo(o2.getDay())).collect(Collectors.toList());
@@ -300,15 +381,15 @@ public class PriceUtil {
         return new BigDecimal(-1);
     }
 
-    private class DailyStockPrice{
-        private Date day;
+    private class DailyStockPrice {
+        private LocalDate day;
         private BigDecimal close;
         private BigDecimal open;
         private BigDecimal high;
         private BigDecimal low;
         private BigDecimal volume;
 
-        public DailyStockPrice(Date day,  BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close, BigDecimal volume) {
+        public DailyStockPrice(LocalDate day,  BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close, BigDecimal volume) {
             this.day = day;
             this.close = close;
             this.open = open;
@@ -317,11 +398,11 @@ public class PriceUtil {
             this.volume = volume;
         }
 
-        public Date getDay() {
+        public LocalDate getDay() {
             return day;
         }
 
-        public void setDay(Date day) {
+        public void setDay(LocalDate day) {
             this.day = day;
         }
 

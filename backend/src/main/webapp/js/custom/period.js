@@ -113,6 +113,7 @@ function loadPeriodData(data){
     $('#fin-expenses').val(period.incomeStatement.financialExpenses);
     $('#tax-expenses').val(period.incomeStatement.taxExpenses);
     $('#n-profit').val(period.incomeStatement.netProfit);
+    $('#profit-minority-interest').val(period.incomeStatement.minorityInterest);
 
     $('#cash-operations').val(period.cashFlowStatement.operatingActivitiesCash);
     $('#dep-amort').val(period.cashFlowStatement.depAndAmrtExpenses);
@@ -133,32 +134,32 @@ function addPeriod() {
     var tickerSymbol = $('#ticker-symbol').val();
     var earningsDate = $('#earnings-date').val();
     var exchange = $('#exchange').val();
-	var shares = $('#shares-oustanding').val();
+	var shares = $('#shares-oustanding').val().replace(/[,|.]/g, '').trim();
 
-	var revenue = $('#revenue').val();
-	var salesAbroad = $('#sales-abroad').val();
-	var salesLocal = $('#sales-local').val();
-	var grossProfit = $('#g-profit').val();
-	var operatingProfit = $('#ebit').val();
-	var netProfit = $('#n-profit').val();
+	var revenue = $('#revenue').val().replace(/[,|.]/g, '').trim();
+	var salesAbroad = $('#sales-abroad').val().replace(/[,|.]/g, '').trim();
+	var salesLocal = $('#sales-local').val().replace(/[,|.]/g, '').trim();
+	var grossProfit = $('#g-profit').val().replace(/[,|.]/g, '').trim();
+	var operatingProfit = $('#ebit').val().replace(/[,|.]/g, '').trim();
+	var netProfit = $('#n-profit').val().replace(/[,|.]/g, '').trim();
 
-    var operatingActivitiesCash = $('#cash-operations').val();
-    var investingActivitiesCash = $('#cash-investments').val();
-    var capitalExpenditures = $('#capex').val();
-    var financingAtivitiesCash = $('#cash-finacing').val();
-    var cash = $('#cash').val();
+    var operatingActivitiesCash = $('#cash-operations').val().replace(/[,|.]/g, '').trim();
+    var investingActivitiesCash = $('#cash-investments').val().replace(/[,|.]/g, '').trim();
+    var capitalExpenditures = $('#capex').val().replace(/[,|.]/g, '').trim();
+    var financingAtivitiesCash = $('#cash-finacing').val().replace(/[,|.]/g, '').trim();
+    var cash = $('#cash').val().replace(/[,|.]/g, '').trim();
 
-    var currentAssets =  $('#c-assets').val();
-    var cashAndEquivalents =  $('#cash-equv').val();
-    var totalAssets =  $('#t-assets').val();
-    var intangibleAssets =  $('#i-assets').val();
-    var currentLiabilities =  $('#c-liabilities').val();
-    var totalLiabilities =  $('#t-liabilities').val();
-    var longTermDebt =  $('#l-debt').val();
-    var minorityInterest =  $('#minority-interest').val();
-    var equity =  $('#equity').val();
-    var shortTermDebt =  $('#s-debt').val();
-    var currentPortionOfLongTermDebt =  $('#cp-long-debt').val();
+    var currentAssets =  $('#c-assets').val().replace(/[,|.]/g, '').trim();
+    var cashAndEquivalents =  $('#cash-equv').val().replace(/[,|.]/g, '').trim();
+    var totalAssets =  $('#t-assets').val().replace(/[,|.]/g, '').trim();
+    var intangibleAssets =  $('#i-assets').val().replace(/[,|.]/g, '').trim();
+    var currentLiabilities =  $('#c-liabilities').val().replace(/[,|.]/g, '').trim();
+    var totalLiabilities =  $('#t-liabilities').val().replace(/[,|.]/g, '').trim();
+    var longTermDebt =  $('#l-debt').val().replace(/[,|.]/g, '').trim();
+    var minorityInterest =  $('#minority-interest').val().replace(/[,|.]/g, '').trim();
+    var equity =  $('#equity').val().replace(/[,|.]/g, '').trim();
+    var shortTermDebt =  $('#s-debt').val().replace(/[,|.]/g, '').trim();
+    var currentPortionOfLongTermDebt =  $('#cp-long-debt').val().replace(/[,|.]/g, '').trim();
 	var description = $('#description').val();
 	var recalculate = $('#recalculate').is(':checked');
 
@@ -184,50 +185,51 @@ function addPeriod() {
 			"lowerPrice": lowerPrice,
             "cashFlowStatement": {
                 "operatingActivitiesCash": operatingActivitiesCash ,
-                "depAndAmrtExpenses": $('#dep-amort').val(),
+                "depAndAmrtExpenses": $('#dep-amort').val().replace(/[,|.]/g, '').trim(),
                 "investingActivitiesCash": investingActivitiesCash ,
                 "capitalExpenditures": capitalExpenditures,
                 "financingAtivitiesCash": financingAtivitiesCash,
-                "dividendPayments": $('#dividend').val(),
-                "debtIssued": $('#debt-issued').val(),
-                "debtPayments": $('#debt-repaid').val(),
+                "dividendPayments": $('#dividend').val().replace(/[,|.]/g, '').trim(),
+                "debtIssued": $('#debt-issued').val().replace(/[,|.]/g, '').trim(),
+                "debtPayments": $('#debt-repaid').val().replace(/[,|.]/g, '').trim(),
                 "cash": cash
             },
             "balanceSheet": {
                 "currentAssets": currentAssets ,
                 "cashAndEquivalents": cashAndEquivalents ,
-                "tradeReceivables":  $('#trd-receivables').val(),
-                "inventories": $('#inventories').val(),
-                "prepayments": $('#prepayments').val(),
+                "tradeReceivables":  $('#trd-receivables').val().replace(/[,|.]/g, '').trim(),
+                "inventories": $('#inventories').val().replace(/[,|.]/g, '').trim(),
+                "prepayments": $('#prepayments').val().replace(/[,|.]/g, '').trim(),
                 "totalAssets": totalAssets ,
-                "propertyPlantEquipment": $('#prop-plant-equp').val(),
+                "propertyPlantEquipment": $('#prop-plant-equp').val().replace(/[,|.]/g, '').trim(),
                 "intangibleAssets": intangibleAssets ,
                 "currentLiabilities": currentLiabilities ,
                 "shortTermDebt": shortTermDebt ,
                 "currentPortionOfLongTermDebt" :currentPortionOfLongTermDebt,
-                "tradePayables": $('#t-payables').val(),
+                "tradePayables": $('#t-payables').val().replace(/[,|.]/g, '').trim(),
                 "totalLiabilities": totalLiabilities ,
                 "longTermDebt": longTermDebt ,
                 "equity": equity ,
                 "minorityInterest": minorityInterest,
-                "retainedEarnings": $('#r-earnings').val()
+                "retainedEarnings": $('#r-earnings').val().replace(/[,|.]/g, '').trim()
             },
             "incomeStatement": {
                 "revenue": revenue,
                 "salesAbroad" : salesAbroad,
                 "salesLocal" : salesLocal,
                 "grossProfit": grossProfit,
-                "sellingMarketingDistributionExpenses": $('#smd-expenses').val(),
-                "generalAdministrativeExpenses": $('#g-a-expenses').val(),
-                "researchDevelopmentExpenses": $('#rd-expenses').val(),
-                "otherOperatingIncome": $('#oth-opr-income').val(),
-                "otherOperatingExpense": $('#oth-opr-expenses').val(),
+                "sellingMarketingDistributionExpenses": $('#smd-expenses').val().replace(/[,|.]/g, '').trim(),
+                "generalAdministrativeExpenses": $('#g-a-expenses').val().replace(/[,|.]/g, '').trim(),
+                "researchDevelopmentExpenses": $('#rd-expenses').val().replace(/[,|.]/g, '').trim(),
+                "otherOperatingIncome": $('#oth-opr-income').val().replace(/[,|.]/g, '').trim(),
+                "otherOperatingExpense": $('#oth-opr-expenses').val().replace(/[,|.]/g, '').trim(),
                 "operatingProfit": operatingProfit,
-                "nonOperatingProfit": $('#n-ebit').val(),
-                "financialIncome": $('#fin-income').val(),
-                "financialExpenses":  $('#fin-expenses').val(),
-                "taxExpenses": $('#tax-expenses').val(),
-                "netProfit": netProfit
+                "nonOperatingProfit": $('#n-ebit').val().replace(/[,|.]/g, '').trim(),
+                "financialIncome": $('#fin-income').val().replace(/[,|.]/g, '').trim(),
+                "financialExpenses":  $('#fin-expenses').val().replace(/[,|.]/g, '').trim(),
+                "taxExpenses": $('#tax-expenses').val().replace(/[,|.]/g, '').trim(),
+                "netProfit": netProfit,
+                "minorityInterest" : $('#profit-minority-interest').val().replace(/[,|.]/g, '').trim()
              },
             "company" :{
                 "tickerSymbol" : tickerSymbol,
@@ -313,6 +315,7 @@ function resetFields() {
     $('#fin-expenses').val('');
     $('#tax-expenses').val('');
     $('#n-profit').val('');
+    $('#profit-minority-interest').val('');
 
     $('#cash-operations').val('');
     $('#dep-amort').val('');

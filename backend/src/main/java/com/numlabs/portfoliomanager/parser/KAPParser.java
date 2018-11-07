@@ -46,7 +46,7 @@ public class KAPParser {
 
     private static String[] IS_ELEMENTS = new String[] {"Revenue", "GROSS PROFIT (LOSS)", "General Administrative Expenses", "Marketing Expenses",
             "Research and development expense", "Other Income from Operating Activities", "Other Expenses from Operating Activities",
-            "PROFIT (LOSS) FROM OPERATING ACTIVITIES", "Finance income", "Finance costs", "Tax (Expense) Income, Continuing Operations", "PROFIT (LOSS)" };
+            "PROFIT (LOSS) FROM OPERATING ACTIVITIES", "Finance income", "Finance costs", "Tax (Expense) Income, Continuing Operations", "PROFIT (LOSS)", "Non-controlling Interests" };
 
     private static String[] CF_ELEMENTS = new String[] { "CASH FLOWS FROM (USED IN) OPERATING ACTIVITIES", "Adjustments for depreciation and amortisation expense",
             "CASH FLOWS FROM (USED IN) INVESTING ACTIVITIES", "Purchase of Property, Plant, Equipment and Intangible Assets",
@@ -125,8 +125,6 @@ public class KAPParser {
                         bs.setTotalLiabilities(readPeriodValue(cellIter, multiplier,3));
                     } else if(currentElementKey.startsWith("Prior Years' Profits or Losses")) {
                         bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
-                    } else if(currentElementKey.startsWith("Prior Years' Profits or Losses")) {
-                        bs.setRetainedEarnings(readPeriodValue(cellIter, multiplier,3));
                     } else if(currentElementKey.startsWith("Non-controlling interests")) {
                         bs.setMinorityInterest(readPeriodValue(cellIter, multiplier,3));
                     }  else if(currentElementKey.startsWith("Total equity")) {
@@ -189,6 +187,8 @@ public class KAPParser {
                         is.setTaxExpenses(readPeriodValue(cellIter, multiplier, 4));
                     } else if(currentElementKey.startsWith("PROFIT (LOSS)")) {
                         is.setNetProfit(readPeriodValue(cellIter, multiplier, 4));
+                    } else if(currentElementKey.startsWith("Non-controlling Interests")) {
+                        is.setMinorityInterest(readPeriodValue(cellIter, multiplier, 4));
                     } else {
                         throw new ParseException("Unexpected element found " + currentElementKey, 0);
                     }
